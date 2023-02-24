@@ -204,10 +204,10 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurre
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
 
 	ZP_SetWeaponAnimation(client, !iClip ? ANIM_DRAW_EMPTY : ANIM_DRAW); 
-	
-	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
-	
+
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
+		
+	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)

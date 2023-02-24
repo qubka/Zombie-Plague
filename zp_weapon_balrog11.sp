@@ -336,8 +336,8 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", 0);
 		SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
+		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", 0);
 	}
 }
 

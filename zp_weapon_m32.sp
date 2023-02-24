@@ -260,20 +260,20 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iRe
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
 
-	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
-	
 	SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_START);
+	
+	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 }
 
 void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)
 {
 	ZP_SetWeaponAnimation(client, ANIM_DRAW); 
+
+	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 	
 	SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_START);
 	
 	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
-	
-	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)

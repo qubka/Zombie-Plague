@@ -125,10 +125,10 @@ void Weapon_OnDeploy(int client, int weapon, int iAmmo, float flCurrentTime)
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", MAX_FLOAT);
 
-	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
-	
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 
+	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
+	
 	Weapon_OnCreateEffect(weapon);
 }
 

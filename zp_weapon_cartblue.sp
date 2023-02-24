@@ -142,9 +142,10 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMod
 	
 	ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_DRAW : ANIM_DRAW2); 
 
-	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
-	
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
+	SetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex", 0.0);
+	
+	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 }
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
@@ -182,6 +183,7 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iSt
 	SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo - iAmount);
 
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
+	SetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex", 0.0);
 }
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iStateMode, float flCurrentTime)
@@ -232,9 +234,9 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 
 	if (iStateMode)
 	{
-		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (ZP_GetWeaponShoot(gWeapon) * hCvarCartblueMultiplier.FloatValue));       
-
 		ZP_SetViewAnimation(client, { ANIM_SHOOT2_1, ANIM_SHOOT2_2 });   
+
+		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + (ZP_GetWeaponShoot(gWeapon) * hCvarCartblueMultiplier.FloatValue));       
 
 		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON);
 	
@@ -242,17 +244,18 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 	}
 	else
 	{
-		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));       
-
 		ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });   
 
+		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));   
+		
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 		
 		UTIL_CreateParticle(view, _, _, "3", sName, 0.1);
 	}
 	
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
-
+	SetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex", GetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex") + 1.0);
+	
 	SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
 
 	static float vVelocity[3]; int iFlags = GetEntityFlags(client); 

@@ -265,7 +265,7 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iStateMod
 	
 	ZP_SetWeaponAnimation(client, !iClip ? ANIM_EMPTY_DRAW : ANIM_DRAW); 
 	
-	SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_BEGIN);
+	SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_BEGIN);
 	
 	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 
@@ -306,7 +306,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 		{
 			ZP_SetWeaponAnimation(client, ANIM_ATTACK_START);        
 
-			SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_ATTACK);
+			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_ATTACK);
 			SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 
 			flCurrentTime += WEAPON_ATTACK_START_TIME;
@@ -479,7 +479,7 @@ void Weapon_OnEndAttack(int client, int weapon, int iClip, int iAmmo, int iState
 	{
 		ZP_SetWeaponAnimation(client, ANIM_ATTACK_END);        
 
-		SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_BEGIN);
+		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_BEGIN);
 
 		flCurrentTime += WEAPON_ATTACK_END_TIME;
 		
@@ -527,7 +527,7 @@ public Action Weapon_OnStab(Handle hTimer, int userID)
 								\
 		GetEntProp(%2, Prop_Send, "m_iPrimaryReserveAmmoCount"), \
 								\
-		GetEntProp(%2, Prop_Data, "m_iHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
 								\
 		GetGameTime() \
 	)
@@ -542,7 +542,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_BEGIN);
+		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_BEGIN);
 		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	}

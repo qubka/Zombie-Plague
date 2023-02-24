@@ -157,9 +157,10 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iCounter,
 
 	ZP_SetWeaponAnimation(client, (iStateMode == STATE_ACTIVE) ? ANIM_DRAW2 : (iStateMode == STATE_SIGNAL) ? ANIM_DRAW_SIGNAL : ANIM_DRAW); 
 
-	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
-	
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
+	SetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex", 0.0);
+	
+	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 }
 
 void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
@@ -202,6 +203,7 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iCo
 	SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo - iAmount);
 
 	SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
+	SetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex", 0.0);
 }
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
@@ -276,16 +278,15 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 	}
-	 
-	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
-		
-	
-	SetEntProp(weapon, Prop_Data, "m_iHealth", iCounter + 1);
 
+	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));       
+	SetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex", GetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex") + 1.0);
 
 	SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
-
+	 
+	SetEntProp(weapon, Prop_Data, "m_iHealth", iCounter + 1);
+	
 	static char sName[NORMAL_LINE_LENGTH];
 	
 	int view = ZP_GetClientViewModel(client, true);

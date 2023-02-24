@@ -215,10 +215,10 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, float flCurre
 	Weapon_OnCreateEffect(client, weapon);
 	
 	ZP_SetWeaponAnimation(client, ANIM_DRAW); 
-	
-	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
-	
+
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
+		
+	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 }
 
 void Weapon_OnDrop(int client, int weapon, int iClip, int iAmmo, float flCurrentTime)

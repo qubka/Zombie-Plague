@@ -505,9 +505,13 @@ public void ZP_OnGameModeStart(int mode)
 			int weapon;
 			if ((weapon = ZP_IsPlayerHasWeapon(client, gWeapon)) != -1)
 			{
-				SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_TRIGGER_OFF);
-				SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_TRIGGER_OFF);
-				SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
+				static float vPosition[3];
+				GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
+				
+				static float vAngle[3];
+				GetClientEyeAngles(client, vAngle);
+		
+				ZP_CreateWeapon(gWeapon, vPosition, vAngle);
 			}
 			else
 			{
