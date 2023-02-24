@@ -189,7 +189,7 @@ void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iCounter, 
 			SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 			SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
 
-			SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", RELOAD_END);
+			SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_END);
 		}
 		
 		case RELOAD_END :
@@ -197,7 +197,7 @@ void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iCounter, 
 			SetEntProp(weapon, Prop_Send, "m_iClip1", iClip + 1);
 			SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo - 1);
 			
-			SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", RELOAD_INSERT);
+			SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_INSERT);
 		}
 	}
 }
@@ -211,7 +211,7 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iCounter,
 {
 	ZP_SetWeaponAnimation(client, (iStateMode == STATE_ACTIVE) ? ANIM_DRAW2 : (iStateMode == STATE_SIGNAL) ? ANIM_DRAW_SIGNAL : ANIM_DRAW); 
 
-	SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", RELOAD_START);
+	SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_START);
 	
 	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 	
@@ -410,7 +410,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iCounter,
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
 
-		SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", RELOAD_INSERT);
+		SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_INSERT);
 	}
 }
 
@@ -426,7 +426,7 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iCo
 
 	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 	
-	SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", RELOAD_START);
+	SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_START);
 }
 
 void Weapon_OnFinish(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, int iReloadMode, float flCurrentTime)
@@ -472,7 +472,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 								\
 		GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
 								\
-		GetEntProp(%2, Prop_Data, "m_iReloadHudHintCount"), \
+		GetEntProp(%2, Prop_Send, "m_iNumEmptyAttacks"), \
 								\
 		GetGameTime()           \
 	)    
@@ -489,7 +489,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 	{
 		SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
 		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_NORMAL);
-		SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", RELOAD_START);
+		SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_START);
 		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 	}
 }

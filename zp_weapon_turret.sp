@@ -1994,7 +1994,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 								  GetEntProp(weapon, Prop_Data, "m_iMaxHealth"), 
 								  GetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount"), 
 								  GetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount"), 
-								  GetEntProp(weapon, Prop_Data, "m_iWeaponModule"));
+								  GetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks"));
 						
 						ZP_RemoveWeapon(client, weapon);
 						
@@ -2067,7 +2067,7 @@ bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
 					SetEntProp(weapon, Prop_Data, "m_iMaxHealth", sentry.Ammo);
 					SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", sentry.Rockets);
 					SetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount", sentry.Skin);
-					SetEntProp(weapon, Prop_Data, "m_iWeaponModule", sentry.UpgradeLevel);
+					SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", sentry.UpgradeLevel);
 
 					AcceptEntityInput(turret, "Kill");
 					
@@ -2155,7 +2155,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", ZP_GetWeaponAmmo(gWeapon));
 		SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", ZP_GetWeaponAmmunition(gWeapon));
 		SetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount", GetRandomInt(0, 1));
-		SetEntProp(weapon, Prop_Data, "m_iWeaponModule", SENTRY_MODE_NORMAL);
+		SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", SENTRY_MODE_NORMAL);
 		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 	}
 }   
