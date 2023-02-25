@@ -31,6 +31,7 @@
 Handle hSDKCallGetSequenceActivity;
 Handle hSDKCallIsBSPModel;
 Handle hSDKCallFireBullets;
+Handle hSDKCallFindEntityInSphere;
 
 /**
  * Variables to store virtual SDK adresses.
@@ -43,6 +44,7 @@ Address pClip;
 Address pPrimary;
 Address pSecondary;
 Address pFireBullets;
+Address pFindEntityInSphere;
 
 /**
  * Variables to store dynamic SDK offsets.
@@ -61,16 +63,27 @@ int VirtualModelStruct_SequenceVector_Size;
 
 /**
  * @brief FX_FireBullets translator.
- * @link http://shell-storm.org/online/Online-Assembler-and-Disassembler/
+ * @link https://defuse.ca/online-x86-assembler.htm
  * 
- * @code 58                pop eax
- *       59                pop ecx
- *       5A                pop edx
- *       50                push eax
- *       B8 00 00 00 00    mov eax, 0x0 ; in 0x0, write the address of the "FX_FireBullets" function
- *       FF E0             jmp eax
+ * @code
+ *  58                      pop    eax
+ *  59                      pop    ecx
+ *  5a                      pop    edx
+ *  50                      push   eax
+ *  b8 00 00 00 00          mov    eax,0x0
+ *  ff e0                   jmp    eax
  **/
-char ASMTRAMPOLINE[NORMAL_LINE_LENGTH] = "\x58\x59\x5a\x50\xb8\x00\x00\x00\x00\xff\xe0";
+char sFXFireBullets[NORMAL_LINE_LENGTH] = "\x58\x59\x5A\x50\xB8\x00\x00\x00\x00\xFF\xE0";
+
+
+/**
+ * @brief CGlobalEntityList::FindEntityInSphere translator.
+ * @link https://defuse.ca/online-x86-assembler.htm
+ * 
+ * @code
+
+ **/
+char sFindEntityInSphere[NORMAL_LINE_LENGTH] = "\xF3\x0F\x10\x5D\x0C\xB8\x00\x00\x00\x00\xFF\xE0";
 
 /**
  * @section StudioHdr structure.
@@ -165,66 +178,84 @@ void ToolsOnInit()
 			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::IsBSPModel\". Update signature in \"%s\"", PLUGIN_CONFIG);
 		}
 	}
+	/*__________________________________________________________________________________________________*/
+	
+	{
+		Address pSignature;
+
+		if (gServerData.Platform == OS_Windows)
+		{
+			StartPrepSDKCall(SDKCall_Static);	
+		
+			fnInitGameConfAddress(gServerData.Config, pSignature, "CGlobalEntityList::FindEntityInSphere");
+			
+			pFindEntityInSphere = fnCreateMemoryForSDKCall();
+
+			PrepSDKCall_SetAddress(pFindEntityInSphere);
+		}
+		else
+		{
+			StartPrepSDKCall(SDKCall_EntityList);
+		
+			PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CGlobalEntityList::FindEntityInSphere");
+		}
+
+		PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer, VDECODE_FLAG_ALLOWNULL | VDECODE_FLAG_ALLOWWORLD);
+		PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		
+		PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
+		
+		if ((hSDKCallFindEntityInSphere = EndPrepSDKCall()) == null)
+		{
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CGlobalEntityList::FindEntityInSphere\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
+		else if (pSignature != Address_Null)
+		{
+			writeDWORD(sFindEntityInSphere, pSignature, 6);
+		}
+	}
 	
 	/*__________________________________________________________________________________________________*/
 	
 	{
+		Address pSignature;
+		
+		StartPrepSDKCall(SDKCall_Static);
+		
 		if (gServerData.Platform == OS_Windows)
 		{
-			Address pSignature;
 			fnInitGameConfAddress(gServerData.Config, pSignature, "FX_FireBullets");
 			
 			pFireBullets = fnCreateMemoryForSDKCall();
-		   
-			StartPrepSDKCall(SDKCall_Static);
 			PrepSDKCall_SetAddress(pFireBullets);
-			
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
-			PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-
-			if ((hSDKCallFireBullets = EndPrepSDKCall()) == null)
-			{
-				LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
-			}
-			else
-			{
-				writeDWORD(ASMTRAMPOLINE, pSignature, 5);
-			}
 		}
 		else
 		{
-			StartPrepSDKCall(SDKCall_Static);
 			PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "FX_FireBullets");
-			
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
-			PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-			
-			if ((hSDKCallFireBullets = EndPrepSDKCall()) == null)
-			{
-				LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
-			}
+		}
+
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer);
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+		PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
+
+		if ((hSDKCallFireBullets = EndPrepSDKCall()) == null)
+		{
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
+		}
+		else if (pSignature != Address_Null)
+		{
+			writeDWORD(sFXFireBullets, pSignature, 5);
 		}
 	}
 	
@@ -257,6 +288,31 @@ void ToolsOnInit()
 	int iOffset_hLightingOrigin;
 	fnInitSendPropOffset(iOffset_hLightingOrigin, "CBaseAnimating", "m_hLightingOrigin");
 	Animating_StudioHdr += iOffset_hLightingOrigin;
+	
+	RegConsoleCmd("ztest", ToolsCmd, "");
+}
+
+public Action ToolsCmd(int client, int iArguments)
+{
+	static float vPosition[3];
+	
+	GetClientAbsOrigin(client, vPosition);
+
+	if (gServerData.Platform == OS_Windows)
+	{
+		memcpy(pFindEntityInSphere, sFindEntityInSphere, sizeof(sFindEntityInSphere));
+	}
+
+	int entity = -1;
+	while ((entity = SDKCall(hSDKCallFindEntityInSphere, entity, vPosition, 1000.0)) != -1)
+	{
+		if (!IsClientValid(entity))
+		{
+			continue;
+		}
+		
+		PrintToServer("%i", entity);
+	}
 }
 
 /**
