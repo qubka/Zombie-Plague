@@ -49,10 +49,10 @@ public Plugin myinfo =
 #define WEAPON_BEAM_WIDTH          3.0
 #define WEAPON_BEAM_HUMAN_COLOR    {0, 0, 255, 255}
 #define WEAPON_BEAM_HUMAN_COLOR_F  "0 0 255"
-#define WEAPON_GLOW_HUMAN_COLOR    0, 255, 0, 255
+#define WEAPON_GLOW_HUMAN_COLOR    {0, 255, 0, 255}
 #define WEAPON_BEAM_ZOMBIE_COLOR   {255, 0, 0, 255}
 #define WEAPON_BEAM_ZOMBIE_COLOR_F "255 0 0"
-#define WEAPON_GLOW_ZOMBIE_COLOR   255, 255, 0, 255
+#define WEAPON_GLOW_ZOMBIE_COLOR   {255, 255, 0, 255}
 #define WEAPON_IDLE_TIME           1.66
 /**
  * @endsection
@@ -410,7 +410,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 }
 
 //**********************************************
-//* Item (beam) hooks.                         *
+//* Item (mine) hooks.                         *
 //**********************************************
 
 /**
@@ -540,21 +540,12 @@ public Action MineActivateHook(Handle hTimer, int refID)
 			static char sModel[PLATFORM_LINE_LENGTH];
 			GetEntPropString(entity, Prop_Data, "m_ModelName", sModel, sizeof(sModel));
 
-			int glow = UTIL_CreateDynamic("glow", vPosition, vEndPosition, sModel, "dropped");
+			int glow = UTIL_CreateGlowing("glow", vPosition, vEndPosition, sModel, "dropped", _, _, bZombie ? WEAPON_GLOW_ZOMBIE_COLOR : WEAPON_GLOW_HUMAN_COLOR);
 
 			if (glow != -1)
 			{
 				SetVariantString("!activator");
 				AcceptEntityInput(glow, "SetParent", entity, glow);
-				
-				if (bZombie)
-				{
-					UTIL_CreateGlowing(glow, true, _, WEAPON_GLOW_ZOMBIE_COLOR);
-				}
-				else
-				{
-					UTIL_CreateGlowing(glow, true, _, WEAPON_GLOW_HUMAN_COLOR);
-				}
 			}
 		}
 		else

@@ -825,15 +825,12 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 					
 					if (hCvarAirdropGlow.BoolValue)
 					{
-						int glow = UTIL_CreateDynamic("glow", vPosition, NULL_VECTOR, sModel, "ref");
+						int glow = UTIL_CreateGlowing("glow", vPosition, NULL_VECTOR, sModel, "ref", _, _, vColor);
 
 						if (glow != -1)
 						{
 							SetVariantString("!activator");
 							AcceptEntityInput(glow, "SetParent", drop, glow);
-
-							UTIL_CreateGlowing(glow, true, _, vColor[0], vColor[1], vColor[2], vColor[3]);
-							
 						}
 					}
 				}

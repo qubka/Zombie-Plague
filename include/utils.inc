@@ -734,6 +734,56 @@ stock int UTIL_CreateDynamic(const char[] sClassname, const float vPosition[3], 
 }
 
 /**
+ * @brief Create a dynamic (glow) entity.
+ * 
+ * @param sClassname        The classname string.
+ * @param vPosition         The position to the spawn.
+ * @param vAngle            The angle to the spawn.
+ * @param sModel            The model path.
+ * @param sDefaultAnim      (Optional) The default animation.
+ * @param bHoldAnim         (Optional) If set, the prop will not loop its animation, but hold the last frame.
+ * @param bSolid            (Optional) If set, the prop will be solid.
+ * @param iFlags            (Optional) The bits with some flags.
+ * @param bEnable           (Optional) Sets to true to enable glowing, false to disable.
+ * @param iType             (Optional) The type of the glowing.
+ * @param vColor            (Optional) The color of the glow. (RGBA)
+ *
+ * @return                  The entity index.                       
+ **/
+stock int UTIL_CreateGlowing(const char[] sClassname, const float vPosition[3], const float vAngle[3], const char[] sModel, const char[] sDefaultAnim = "", bool bHoldAnim = false, int iType = 0, const int vColor[4] = {255, 255, 255, 255}, bool bEnable = true, float flDistance = 100000.0, bool bSolid = false, int iFlags = DYN_COLLISIONDISABLED)
+{
+	int entity = CreateEntityByName("prop_dynamic_glow");
+
+	if (entity != -1)
+	{
+		static char sFlags[SMALL_LINE_LENGTH];
+		IntToString(iFlags, sFlags, sizeof(sFlags));
+	
+		DispatchKeyValue(entity, "targetname", sClassname);
+		DispatchKeyValueVector(entity, "origin", vPosition); 
+		DispatchKeyValueVector(entity, "angles", vAngle);
+		DispatchKeyValue(entity, "model", sModel);
+		DispatchKeyValue(entity, "spawnflags", sFlags);
+		DispatchKeyValue(entity, "solid", bSolid ? "1" : "0");
+		DispatchKeyValue(entity, "HoldAnimation", bHoldAnim ? "1" : "0");
+		if (hasLength(sDefaultAnim)) DispatchKeyValue(entity, "DefaultAnim", sDefaultAnim);
+
+		DispatchKeyValue(entity, "glowenabled", bEnable ? "1" : "0");
+		IntToString(iType, sFlags, sizeof(sFlags));
+		DispatchKeyValue(entity, "glowstyle", sFlags);
+		FloatToString(flDistance, sFlags, sizeof(sFlags));
+		DispatchKeyValue(entity, "glowdist", sFlags);
+
+		DispatchSpawn(entity);
+		
+		SetVariantColor(vColor);
+		AcceptEntityInput(entity, "SetGlowColor");
+	}
+	
+	return entity;
+}
+
+/**
  * @brief Create a projectile entity.
  * 
  * @param vPosition         The position to the spawn.
@@ -1385,35 +1435,6 @@ stock int UTIL_CreateLight(int parent = -1, const float vPosition[3] = NULL_VECT
 	}
 	
 	return entity;
-}
-
-/**
- * @brief Sets the glowing on the entity.
- * 
- * @param entity            The entity index.
- * @param enableState       Sets to true to enable glowing, false to disable.
- * @param iType             (Optional) The type of the glowing.
- * @param iRed              (Optional) Amount of a red (0-255)
- * @param iGreen            (Optional) Amount of a green (0-255)
- * @param iBlue             (Optional) Amount of a blue (0-255)
- * @param iAlpha            (Optional) Amount of an alpha (0-255)
- **/
-stock void UTIL_CreateGlowing(int entity, bool enableState, int iType = 0, int iRed = 255, int iGreen = 255, int iBlue = 255, int iAlpha = 255)
-{
-	static int iGlowOffset;
-	if (!iGlowOffset && (iGlowOffset = GetEntSendPropOffs(entity, "m_clrGlow")) == -1)
-	{
-		return;
-	}
-	
-	SetEntProp(entity, Prop_Send, "m_bShouldGlow", enableState, true);
-	SetEntProp(entity, Prop_Send, "m_nGlowStyle", iType);
-	SetEntPropFloat(entity, Prop_Send, "m_flGlowMaxDist", 100000.0);
-	
-	SetEntData(entity, iGlowOffset + 0, iRed,   _, true);
-	SetEntData(entity, iGlowOffset + 1, iGreen, _, true);
-	SetEntData(entity, iGlowOffset + 2, iBlue,  _, true);
-	SetEntData(entity, iGlowOffset + 3, iAlpha, _, true);
 }
 
 /**

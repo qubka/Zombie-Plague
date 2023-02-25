@@ -75,10 +75,10 @@ enum
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_IDLE_TIME      1.66  
-#define WEAPON_IDLE2_TIME     2.0
-#define WEAPON_SWITCH_TIME    1.0
-#define WEAPON_BEAM_COLOR_F   "255 165 0"
+#define WEAPON_IDLE_TIME   1.66  
+#define WEAPON_IDLE2_TIME  2.0
+#define WEAPON_SWITCH_TIME 1.0
+#define WEAPON_GLOW_COLOR  {255, 165, 0, 255}
 
 /**
  * @endsection
@@ -353,17 +353,29 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
 				
 				SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_NO);
 				
-				SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", client);
-				SetEntPropEnt(entity, Prop_Data, "m_hDamageFilter", weapon);
+				SetEntPropEnt(entity, Prop_Data, "m_hDamageFilter", client); /// m_hOwnerEntity will block SDKHook_UsePost
+				SetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity", weapon);
 				SetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity", entity);
 				
 				SetEntProp(entity, Prop_Data, "m_iHammerID", STATE_TRIGGER_OFF);
+				
+				///SDKHook(entity, SDKHook_UsePost, MineUseHook);
+
+				int glow = UTIL_CreateGlowing("glow", vPosition, vAngle, sModel, "dropped", _, _, WEAPON_GLOW_COLOR, false);
+
+				if (glow != -1)
+				{
+					SetVariantString("!activator");
+					AcceptEntityInput(glow, "SetParent", entity, glow);
+					
+					SetEntPropEnt(entity, Prop_Data, "m_hEffectEntity", glow);
+				}
 				
 				EmitSoundToAll("survival/breach_land_01.wav", entity, SNDCHAN_STATIC);
 				
 				CreateTimer(0.2, MineThinkHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 			}
-			
+
 			SetEntProp(weapon, Prop_Data, "m_iClip2", STATE_TRIGGER_ON);
 
 			ZP_SetWeaponAnimation(client, ANIM_DRAW_TRIGGER_OFF);
@@ -506,6 +518,13 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 			{
 				SetEntProp(entity, Prop_Data, "m_iHammerID", iStateMode);
 				
+				int glow = GetEntPropEnt(entity, Prop_Data, "m_hEffectEntity");
+				
+				if (glow != -1)
+				{
+					SetEntProp(glow, Prop_Send, "m_bShouldGlow", iStateMode, true);
+				}
+				
 				EmitSoundToAll(iStateMode ? "survival/breach_activate_01.wav" : "survival/breach_defuse_01.wav", entity, SNDCHAN_STATIC);
 			}
 		}
@@ -528,6 +547,45 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 
 	return Plugin_Continue;
 }
+
+//**********************************************
+//* Item (mine) hooks.                         *
+//**********************************************
+
+/**
+ * @brief Mine use hook.
+ *
+ * @param entity            The entity index.
+ * @param activator         The activator index.
+ * @param caller            The caller index.
+ * @param use               The use type.
+ * @param flValue           The value parameter.
+ **/ 
+/*public void MineUseHook(int entity, int activator, int caller, UseType use, float flValue)
+{
+	if (IsClientValid(activator))
+	{
+		int weapon;
+		
+		if (ZP_IsPlayerHoldWeapon(activator, weapon, gWeapon))
+		{
+			if (GetEntPropEnt(weapon, Prop_Data, "m_hEffectEntity") == entity)
+			{
+				SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_TRIGGER_OFF);
+				SetEntProp(weapon, Prop_Data, "m_iClip2", STATE_TRIGGER_OFF);
+
+				ZP_SetWeaponAnimation(activator, ANIM_DRAW);
+				
+				float flCurrentTime = GetGameTime() + ZP_GetWeaponDeploy(gWeapon);
+		
+				SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
+				SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);    
+			
+				AcceptEntityInput(entity, "Kill");
+			}
+		}
+	}
+}*/
 
 /**
  * @brief Main timer for mine think.
@@ -600,8 +658,8 @@ void MineExpload(int entity, bool bRemove = false)
 		iFlags |= EXP_NOFIREBALL; /// remove effect sprite
 	}
 	
-	int client = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
-	int weapon = GetEntPropEnt(entity, Prop_Data, "m_hDamageFilter");
+	int client = GetEntPropEnt(entity, Prop_Data, "m_hDamageFilter");
+	int weapon = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
 	
 	if (weapon != -1)
 	{
