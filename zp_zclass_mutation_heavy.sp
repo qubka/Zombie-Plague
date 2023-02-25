@@ -214,6 +214,8 @@ public void ZP_OnClientSkillOver(int client)
 			SDKHook(entity, SDKHook_Touch, TrapTouchHook);
 		}
 		
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_DEPLOY);
+		
 		SetGlobalTransTarget(client);
 		PrintHintText(client, "%t", "mutationheavy success");
 		

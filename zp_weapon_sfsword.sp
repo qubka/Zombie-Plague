@@ -220,9 +220,9 @@ void Weapon_OnDeploy(int client, int weapon, int iStep, int iChangeMode, float f
 	
 	ZP_SetWeaponAnimation(client, ANIM_DRAW); 
 	
-	SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_ON);
+	SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_ON);
 	
-	SetEntProp(weapon, Prop_Data, "m_iHealth", ATTACK_SLASH_1);
+	SetEntProp(weapon, Prop_Data, "m_iClip2", ATTACK_SLASH_1);
 	
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 }
@@ -239,8 +239,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 	if (iChangeMode)
 	{
 		ZP_SetViewAnimation(client, { ANIM_OFF_SLASH1, ANIM_OFF_SLASH2 });
-
-		ZP_SetPlayerAnimation(client, AnimType_MeleeStab);
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
 		
 		delete hWeaponStab[client];
 		hWeaponStab[client] = CreateTimer(0.35, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
@@ -268,12 +267,12 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iStep, int iChangeMode, 
 			}
 		}
 
-		ZP_SetPlayerAnimation(client, AnimType_MeleeSlash);
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_PRIMARY);
 		
 		delete hWeaponSwing[client];
 		hWeaponSwing[client] = CreateTimer(0.35, Weapon_OnSwing, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		
-		SetEntProp(weapon, Prop_Data, "m_iHealth", iCount + 1);
+		SetEntProp(weapon, Prop_Data, "m_iClip2", iCount + 1);
 	}
 
 	flCurrentTime += ZP_GetWeaponShoot(gWeapon);
@@ -304,6 +303,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iStep, int iChangeMode
 	{
 		ZP_SetWeaponAnimation(client, ANIM_OFF);
 	}
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
 	
 	int entity = GetEntPropEnt(weapon, Prop_Send, "m_hWeaponWorldModel");
 	
@@ -312,7 +312,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iStep, int iChangeMode
 		SetEntProp(entity, Prop_Send, "m_nBody", (!iChangeMode));
 	}
 	
-	SetEntProp(weapon, Prop_Data, "m_iMaxHealth", (!iChangeMode));
+	SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", (!iChangeMode));
 	
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
 				
@@ -417,7 +417,7 @@ public Action Weapon_OnSwing(Handle hTimer, int userID)
 		float flRightShift = 14.0;
 		float flRightModifier = 2.0;
 		
-		switch ((GetEntProp(weapon, Prop_Data, "m_iHealth") - 1) % ATTACK_SLASH_SIZE)
+		switch ((GetEntProp(weapon, Prop_Data, "m_iClip2") - 1) % ATTACK_SLASH_SIZE)
 		{
 			case ATTACK_SLASH_2:
 			{
@@ -476,9 +476,9 @@ public Action Weapon_OnSwingAgain(Handle hTimer, int userID)
 		%1,                     \
 		%2,                     \
 								\
-		GetEntProp(%2, Prop_Data, "m_iHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iClip2"), \
 								\
-		GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iSecondaryAmmoCount"), \
 								\
 		GetGameTime() \
 	)
@@ -493,8 +493,8 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iHealth", ATTACK_SLASH_1);
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_ON);
+		SetEntProp(weapon, Prop_Data, "m_iClip2", ATTACK_SLASH_1);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_ON);
 	}
 }
 	

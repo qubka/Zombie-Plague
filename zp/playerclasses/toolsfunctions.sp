@@ -855,23 +855,23 @@ void ToolsSetModelIndex(int entity, int iModel)
 }
  
 /**
- * @brief Gets the custom weapon ID.
+ * @brief Gets the hammer ID.
  *
  * @param weapon            The entity index.
- * @return                  The custom id.    
+ * @return                  The hammer id.    
  **/
-int ToolsGetCustomID(int entity)
+int ToolsGetHammerID(int entity)
 {
 	return GetEntProp(entity, Prop_Data, "m_iHammerID");
 }
 
 /**
- * @brief Sets the custom ID.
+ * @brief Sets the hammer ID.
  *
  * @param entity            The entity index.
- * @param iD                The custom id.
+ * @param iD                The hammer id.
  **/
-void ToolsSetCustomID(int entity, int iD)
+void ToolsSetHammerID(int entity, int iD)
 {
 	SetEntProp(entity, Prop_Data, "m_iHammerID", iD);
 }
@@ -1076,7 +1076,7 @@ void ToolsFireBullets(int client, int weapon, const float vPosition[3], const fl
 	if (hEvent != null)
 	{
 		hEvent.SetInt("userid", GetClientUserId(client));
-		hEvent.SetString("weapon", ToolsGetCustomID(weapon));
+		hEvent.SetString("weapon", WeaponsGetCustomID(weapon));
 		hEvent.SetBool("silenced", false);
 
 		hEvent.Fire(false);

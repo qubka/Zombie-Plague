@@ -487,7 +487,7 @@ void WeaponMODOnEntityCreated(int weapon, const char[] sClassname)
  **/
 public void WeaponMODOnItemSpawn(int item)
 {
-	ToolsSetCustomID(item, WeaponsDefToIndex(WeaponsGetDefentionIndex(item)));
+	WeaponsSetCustomID(item, WeaponsDefToIndex(WeaponsGetDefentionIndex(item)));
 }
 
 /**
@@ -498,7 +498,7 @@ public void WeaponMODOnItemSpawn(int item)
  **/
 public void WeaponMODOnWeaponSpawn(int weapon)
 {
-	ToolsSetCustomID(weapon, WeaponsDefToIndex(WeaponsGetDefentionIndex(weapon)));
+	WeaponsSetCustomID(weapon, WeaponsDefToIndex(WeaponsGetDefentionIndex(weapon)));
 
 	if (hDHookWeaponHolster) 
 	{
@@ -529,7 +529,7 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 
 	if (weapon != -1)
 	{
-		int iD = ToolsGetCustomID(weapon);
+		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			if (WeaponsGetAmmoType(weapon) != -1)
@@ -537,8 +537,7 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 				int iClip = WeaponsGetClip(iD);
 				if (iClip)
 				{
-					WeaponsSetClipAmmo(weapon, iClip); 
-					WeaponsSetMaxClipAmmo(weapon, iClip);
+					WeaponsSetClipAmmo(weapon, iClip);
 					
 					if (hDHookGetMaxClip) 
 					{
@@ -554,7 +553,6 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 				if (iAmmo)
 				{
 					WeaponsSetReserveAmmo(weapon, iAmmo); 
-					WeaponsSetMaxReserveAmmo(weapon, iAmmo);
 					
 					if (hDHookGetReserveAmmoMax)
 					{
@@ -567,7 +565,11 @@ public void WeaponMODOnWeaponSpawnPost(int refID)
 				}
 			}
 
-			gForwardData._OnWeaponCreated(weapon, iD);
+			if (!WeaponsIsCreated(weapon))
+			{
+				gForwardData._OnWeaponCreated(weapon, iD);
+				WeaponsSetCreated(weapon, true);
+			}
 			
 			int client = WeaponsGetOwner(weapon);
 			
@@ -597,7 +599,7 @@ public void WeaponMODOnInfernoSpawn(int entity)
 		gClientData[client].LastGrenade = -1;
 	}
 	
-	ToolsSetCustomID(entity, iD);
+	WeaponsSetCustomID(entity, iD);
 }
 
 /**
@@ -621,10 +623,10 @@ public void WeaponMODOnGrenadeSpawn(int grenade)
 	
 		if (weapon != -1)
 		{
-			int iD = ToolsGetCustomID(weapon);
+			int iD = WeaponsGetCustomID(weapon);
 			if (iD != -1)
 			{
-				ToolsSetCustomID(grenade, iD);
+				WeaponsSetCustomID(grenade, iD);
 
 				ItemDef iItem = WeaponsGetDefIndex(iD);
 				if (IsFireble(iItem))
@@ -641,7 +643,7 @@ public void WeaponMODOnGrenadeSpawn(int grenade)
 		}
 	}
 	
-	ToolsSetCustomID(grenade, -1);
+	WeaponsSetCustomID(grenade, -1);
 }
 
 /**
@@ -656,7 +658,7 @@ public void WeaponMODOnGrenadeSpawnPost(int refID)
 
 	if (grenade != -1)
 	{
-		int iD = ToolsGetCustomID(grenade);
+		int iD = WeaponsGetCustomID(grenade);
 		if (iD != -1)
 		{
 			WeaponHDRSetDroppedModel(grenade, iD, ModelType_Projectile);
@@ -700,7 +702,7 @@ public void WeaponMODOnWeaponReloadPost(int refID)
 			return;
 		}
 		
-		int iD = ToolsGetCustomID(weapon);
+		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			float flCurrentTime = GetGameTime();
@@ -873,7 +875,7 @@ public Action CS_OnCSWeaponDrop(int client, int weapon)
 {
 	if (IsValidEdict(weapon))
 	{
-		int iD = ToolsGetCustomID(weapon);
+		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			if (!WeaponsIsDrop(iD)) 
@@ -915,7 +917,7 @@ public void WeaponMODOnWeaponDropPost(int refID)
 	
 	if (weapon != -1)
 	{
-		int iD = ToolsGetCustomID(weapon);
+		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{	
 			WeaponHDRSetDroppedModel(weapon, iD, ModelType_Drop);
@@ -972,7 +974,7 @@ public void WeaponMODOnSwitch(int client, int weapon)
 
 	AcceptEntityInput(view2, "DisableDraw");
 
-	int iD = ToolsGetCustomID(weapon);
+	int iD = WeaponsGetCustomID(weapon);
 	if (iD != -1)
 	{
 		float flCurrentTime = GetGameTime();
@@ -1002,9 +1004,9 @@ public void WeaponMODOnSwitch(int client, int weapon)
 		}
 	}
 
-	// Should surpress sounds on view model ?
-	SetEntData(view1, Animating_bSuppressAnimSounds, gClientData[client].CustomWeapon != -1, 1, true);
-	SetEntData(view2, Animating_bSuppressAnimSounds, gClientData[client].CustomWeapon == -1, 1, true);
+	// Seems not used on client side
+	///SetEntData(view1, Animating_bSuppressAnimSounds, gClientData[client].CustomWeapon != -1, 1, true);
+	///SetEntData(view2, Animating_bSuppressAnimSounds, gClientData[client].CustomWeapon == -1, 1, true);
 	
 	static char sArm[PLATFORM_LINE_LENGTH];
 	ClassGetArmModel(gClientData[client].Class, sArm, sizeof(sArm));
@@ -1031,7 +1033,7 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 
 	if (IsValidEdict(weapon))
 	{
-		int iD = ToolsGetCustomID(weapon);
+		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			ItemDef iItem = WeaponsGetDefIndex(iD);
@@ -1104,7 +1106,7 @@ public void WeaponMODOnPostThinkPost(int client)
 				return;
 			}
 			
-			int iD = ToolsGetCustomID(weapon);
+			int iD = WeaponsGetCustomID(weapon);
 
 			int swapSequence = WeaponsGetSequenceSwap(iD, iSequence);
 			if (swapSequence != -1)
@@ -1147,7 +1149,7 @@ public void WeaponMODOnEquipPost(int client, int weapon)
 {
 	if (IsValidEdict(weapon))
 	{
-		int iD = ToolsGetCustomID(weapon);
+		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)    
 		{
 			ItemDef iItem = WeaponsGetDefIndex(iD);
@@ -1178,7 +1180,7 @@ public void WeaponMODOnEquipPost(int client, int weapon)
  **/
 void WeaponMODOnFire(int client, int weapon) 
 {
-	int iD = ToolsGetCustomID(weapon);
+	int iD = WeaponsGetCustomID(weapon);
 	if (iD != -1)    
 	{
 		float flCurrentTime = GetGameTime();
@@ -1252,7 +1254,7 @@ void WeaponMODOnFire(int client, int weapon)
  **/
 void WeaponMODOnBullet(int client, const float vBullet[3], int weapon) 
 { 
-	int iD = ToolsGetCustomID(weapon);
+	int iD = WeaponsGetCustomID(weapon);
 	if (iD != -1)    
 	{
 		gForwardData._OnWeaponBullet(client, vBullet, weapon, iD);
@@ -1267,7 +1269,7 @@ void WeaponMODOnBullet(int client, const float vBullet[3], int weapon)
  **/
 Action WeaponMODOnShoot(int client, int weapon) 
 { 
-	int iD = ToolsGetCustomID(weapon);
+	int iD = WeaponsGetCustomID(weapon);
 	if (iD != -1)    
 	{
 		Action hResult = SoundsOnClientShoot(client, iD);
@@ -1292,7 +1294,7 @@ Action WeaponMODOnShoot(int client, int weapon)
  **/
 Action WeaponMODOnRunCmd(int client, int &iButtons, int iLastButtons, int weapon)
 {
-	static int iD; iD = ToolsGetCustomID(weapon); /** static for runcmd **/
+	static int iD; iD = WeaponsGetCustomID(weapon); /** static for runcmd **/
 	if (iD != -1)    
 	{
 		if (iButtons & IN_ATTACK || iButtons & IN_ATTACK2)
@@ -1305,8 +1307,8 @@ Action WeaponMODOnRunCmd(int client, int &iButtons, int iLastButtons, int weapon
 				{
 					switch (iAmmo)
 					{
-						case 1 : { WeaponsSetReserveAmmo(weapon, WeaponsGetMaxReserveAmmo(weapon)); }
-						case 2 : { WeaponsSetClipAmmo(weapon, WeaponsGetMaxClipAmmo(weapon)); } 
+						case 1 : { WeaponsSetReserveAmmo(weapon, WeaponsGetAmmo(iD)); }
+						case 2 : { WeaponsSetClipAmmo(weapon, WeaponsGetClip(iD)); } 
 						default : { /* < empty statement > */ }
 					}
 				}
@@ -1408,7 +1410,7 @@ void WeaponMODOnClientBuyammo(int client)
 			return;
 		}
 
-		int iD = ToolsGetCustomID(weapon);
+		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			int iCost = WeaponsGetAmmunition(iD);
@@ -1426,11 +1428,11 @@ void WeaponMODOnClientBuyammo(int client)
 			}
 	
 			int iAmmo = WeaponsGetReserveAmmo(weapon);
-			int iMaxAmmo = WeaponsGetMaxReserveAmmo(weapon);
+			int iMaxAmmo = WeaponsGetAmmo(iD);
 			
 			if (iAmmo < iMaxAmmo)
 			{
-				iAmmo += WeaponsGetMaxClipAmmo(weapon); if (!iAmmo) /*~*/ iAmmo++;
+				iAmmo += WeaponsGetClip(iD); if (!iAmmo) /*~*/ iAmmo++;
 
 				WeaponsSetReserveAmmo(weapon, (iAmmo <= iMaxAmmo) ? iAmmo : iMaxAmmo);
 
@@ -1458,7 +1460,7 @@ public Action WeaponMODOnCommandListenedDrop(int client, char[] commandMsg, int 
 
 		if (weapon != -1)
 		{
-			int iD = ToolsGetCustomID(weapon);
+			int iD = WeaponsGetCustomID(weapon);
 			if (iD != -1)
 			{
 				if (!WeaponsIsDrop(iD)) 
@@ -1529,7 +1531,7 @@ public MRESReturn WeaponDHookOnCanUse(Handle hReturn, Handle hParams)
 	
 	if (IsValidEdict(weapon))
 	{
-		int iD = ToolsGetCustomID(weapon);
+		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			ItemDef iItem = WeaponsGetDefIndex(iD);
@@ -1553,7 +1555,7 @@ public MRESReturn WeaponDHookOnCanUse(Handle hReturn, Handle hParams)
  **/
 /*public MRESReturn WeaponDHookOnDeploy(int weapon, Handle hReturn)
 {
-	int iD = ToolsGetCustomID(weapon);
+	int iD = WeaponsGetCustomID(weapon);
 	if (iD != -1)
 	{
 		int client = WeaponsGetOwner(weapon);
@@ -1580,7 +1582,7 @@ public MRESReturn WeaponDHookOnCanUse(Handle hReturn, Handle hParams)
  **/
 public MRESReturn WeaponDHookOnHolster(int weapon, Handle hReturn, Handle hParams)
 {
-	int iD = ToolsGetCustomID(weapon);
+	int iD = WeaponsGetCustomID(weapon);
 	if (iD != -1)
 	{
 		int client = WeaponsGetOwner(weapon);
@@ -1607,7 +1609,7 @@ public MRESReturn WeaponDHookOnGetMaxClip1(int weapon, Handle hReturn)
 {
 	if (IsValidEdict(weapon))
 	{
-		int iD = ToolsGetCustomID(weapon);
+		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			int iClip = WeaponsGetClip(iD);
@@ -1634,7 +1636,7 @@ public MRESReturn WeaponDHookOnGetReverseMax(int weapon, Handle hReturn, Handle 
 {
 	if (IsValidEdict(weapon))
 	{
-		int iD = ToolsGetCustomID(weapon);
+		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{
 			int iAmmo = WeaponsGetAmmo(iD);
@@ -1666,7 +1668,7 @@ public MRESReturn WeaponDHookGetPlayerMaxSpeed(int client, Handle hReturn)
 
 		if (weapon != -1)
 		{
-			int iD = ToolsGetCustomID(weapon);
+			int iD = WeaponsGetCustomID(weapon);
 			if (iD != -1)
 			{
 				float flSpeed = WeaponsGetSpeed(iD);

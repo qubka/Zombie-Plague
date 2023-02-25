@@ -160,7 +160,7 @@ public void JumpBoostOnClientJumpPost(int userID)
 		
 		if (weapon != -1)
 		{
-			int iD = ToolsGetCustomID(weapon);
+			int iD = WeaponsGetCustomID(weapon);
 			if (iD != -1)
 			{
 				vVelocity[2] += WeaponsGetJump(iD);

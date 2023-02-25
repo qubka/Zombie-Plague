@@ -158,7 +158,7 @@ void Weapon_OnShoot(int client, int weapon, int iCounter, int iAmmo, float flCur
 	{
 		if (iAmmo < ZP_GetWeaponClip(gWeapon))
 		{
-			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", iAmmo + 1);
+			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", iAmmo + 1);
 		 
 			ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_WEAPON);
 			
@@ -166,7 +166,7 @@ void Weapon_OnShoot(int client, int weapon, int iCounter, int iAmmo, float flCur
 		}
 	}
 
-	SetEntProp(weapon, Prop_Data, "m_iHealth", iCounter + 1);
+	SetEntProp(weapon, Prop_Data, "m_iClip2", iCounter + 1);
 }
 
 void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, float flCurrentTime)
@@ -200,13 +200,14 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iCounter, int iAmmo, f
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", flCurrentTime);
 
-	iAmmo -= 1; SetEntProp(weapon, Prop_Data, "m_iMaxHealth", iAmmo); 
+	iAmmo -= 1; SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", iAmmo); 
 	
 	SetEntProp(client, Prop_Send, "m_iShotsFired", GetEntProp(client, Prop_Send, "m_iShotsFired") + 1);
  
 	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 	
 	ZP_SetViewAnimation(client, { ANIM_SHOOT_BSC1, ANIM_SHOOT_BSC2 });
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_PRIMARY);
 	
 	static float vPosition[5][3];
 
@@ -319,9 +320,9 @@ void Weapon_OnCreateFire(int client, int weapon, const float vPosition[3])
 		%1,                     \
 		%2,                     \
 								\
-		GetEntProp(%2, Prop_Data, "m_iHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iClip2"), \
 								\
-		GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iSecondaryAmmoCount"), \
 								\
 		GetGameTime()           \
 	)    
@@ -336,8 +337,8 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", 0);
+		SetEntProp(weapon, Prop_Data, "m_iClip2", 0);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", 0);
 	}
 }
 

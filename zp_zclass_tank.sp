@@ -128,6 +128,8 @@ public Action ZP_OnClientSkillUsed(int client)
 			TE_SetupBeamFollow(client, gTrail, 0, ZP_GetClassSkillDuration(gZombie), 6.0, 6.0, 3, {255, 255, 0, 200});
 			TE_SendToAll();	
 		}
+		
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_CATCH_WEAPON);
 	}
 	
 	return Plugin_Continue;

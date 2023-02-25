@@ -477,6 +477,11 @@ enum ItemDef
 	ItemDef_TalonKnife = 523,
 	ItemDef_SkeletonKnife = 525
 };
+
+/// Used to check custom weapon id from weapons.ini on weapon_, _projectile, point_hurt entities.
+/// We used m_iHammerID before but it can broke some custom weapons which could spawn by map.
+#define m_iCustomID "m_iMaxHealth"
+
 #define IsGrenade(%0)       (%0 == ItemDef_TAGrenade || %0 == ItemDef_HEGrenade || %0 == ItemDef_SmokeGrenade || %0 == ItemDef_FlashBang || %0 == ItemDef_BreachCharge || (%0 >= ItemDef_Molotov && %0 <= ItemDef_IncGrenade) || (%0 >= ItemDef_FireBomb && %0 <= ItemDef_BumpMine))
 #define IsProjectile(%0)    (%0 == ItemDef_TAGrenade || %0 == ItemDef_HEGrenade || %0 == ItemDef_SmokeGrenade || %0 == ItemDef_FlashBang || (%0 >= ItemDef_Molotov && %0 <= ItemDef_IncGrenade) || (%0 >= ItemDef_FireBomb && %0 <= ItemDef_FragGrenade))
 #define IsFireble(%0)       (%0 == ItemDef_Molotov || %0 == ItemDef_IncGrenade || %0 == ItemDef_FireBomb)
@@ -510,6 +515,38 @@ enum ColorType
 	Color_Green,
 	Color_Blue,
 	Color_Alpha
+};
+/**
+ * @endsection
+ **/ 
+
+/**
+ * @section Number of valid animations.
+ **/ 
+enum PlayerAnimEvent
+{
+	PLAYERANIMEVENT_FIRE_GUN_PRIMARY = 0,
+	PLAYERANIMEVENT_FIRE_GUN_PRIMARY_OPT,          // an optional primary attack for variation in animation. For example, the knife toggles between left AND right slash animations.
+	PLAYERANIMEVENT_FIRE_GUN_PRIMARY_SPECIAL1,
+	PLAYERANIMEVENT_FIRE_GUN_PRIMARY_OPT_SPECIAL1, // an optional primary special attack for variation in animation.
+	PLAYERANIMEVENT_FIRE_GUN_SECONDARY,
+	PLAYERANIMEVENT_FIRE_GUN_SECONDARY_SPECIAL1,
+	PLAYERANIMEVENT_GRENADE_PULL_PIN,
+	PLAYERANIMEVENT_THROW_GRENADE,
+	PLAYERANIMEVENT_JUMP,
+	PLAYERANIMEVENT_RELOAD,
+	PLAYERANIMEVENT_RELOAD_START,   ///< w_model partial reload for shotguns
+	PLAYERANIMEVENT_RELOAD_LOOP,    ///< w_model partial reload for shotguns
+	PLAYERANIMEVENT_RELOAD_END,     ///< w_model partial reload for shotguns
+	PLAYERANIMEVENT_CLEAR_FIRING,   ///< clear animations on the firing layer
+	PLAYERANIMEVENT_DEPLOY,         ///< Used to play deploy animations on third person models.
+	PLAYERANIMEVENT_SILENCER_ATTACH,
+	PLAYERANIMEVENT_SILENCER_DETACH,
+	
+	// new events
+	PLAYERANIMEVENT_THROW_GRENADE_UNDERHAND,
+	PLAYERANIMEVENT_CATCH_WEAPON,
+	PLAYERANIMEVENT_COUNT
 };
 /**
  * @endsection
@@ -712,7 +749,7 @@ stock int UTIL_CreateProjectile(const float vPosition[3], const float vAngle[3],
 
 	if (entity != -1)
 	{
-		SetEntProp(entity, Prop_Data, "m_iHammerID", weaponID);
+		SetEntProp(entity, Prop_Data, m_iCustomID, weaponID);
 		SetEntProp(entity, Prop_Data, "m_nNextThinkTick", -1);
 	
 		DispatchSpawn(entity);
@@ -945,7 +982,7 @@ stock int UTIL_CreateDamage(int parent = -1, const float vPosition[3] = NULL_VEC
 		DispatchSpawn(entity);      
 		TeleportEntity(entity, vPosition, NULL_VECTOR, NULL_VECTOR);
 		
-		SetEntProp(entity, Prop_Data, "m_iHammerID", weaponID);
+		SetEntProp(entity, Prop_Data, m_iCustomID, weaponID);
 
 		if (parent != -1)
 		{

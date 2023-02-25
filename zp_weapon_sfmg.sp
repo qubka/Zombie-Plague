@@ -162,7 +162,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iStateMod
 	}
 	
 	ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_RELOAD : ANIM_RELOAD2); 
-	ZP_SetPlayerAnimation(client, AnimType_Reload);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_RELOAD);
 	
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
 	
@@ -253,6 +253,8 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 		
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 	}
+	
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_PRIMARY);
 
 	SetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex", GetEntPropFloat(weapon, Prop_Send, "m_flRecoilIndex") + 1.0);
 
@@ -297,7 +299,8 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 	}
 
 	ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_CHANGE : ANIM_CHANGE2);        
-
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
+	
 	flCurrentTime += WEAPON_SWITCH_TIME;
 
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -333,7 +336,7 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 								\
 		GetEntProp(%2, Prop_Send, "m_iPrimaryReserveAmmoCount"), \
 								\
-		GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iSecondaryAmmoCount"), \
 								\
 		GetGameTime()           \
 	)    
@@ -349,7 +352,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_NORMAL);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_NORMAL);
 		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	}
@@ -421,7 +424,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 		if ((flApplyModeTime = GetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime")) && flApplyModeTime <= GetGameTime())
 		{
 			SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
-			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"));
+			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", !GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount"));
 		}
 		
 		static float flReloadTime;
@@ -477,9 +480,9 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 	{
 		if (IsValidEdict(weapon))
 		{
-			if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == gWeapon)
+			if (GetEntProp(weapon, Prop_Data, m_iCustomID) == gWeapon)
 			{
-				if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth")) flDamage *= hCvarSfmgMultiplier.FloatValue;
+				if (GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount")) flDamage *= hCvarSfmgMultiplier.FloatValue;
 			}
 		}
 	}

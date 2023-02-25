@@ -176,6 +176,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		}
 		
 		ZP_SetClientMoney(client, ZP_GetClientMoney(client) + iTotal);	
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_CATCH_WEAPON);
 	}
 	
 	return Plugin_Continue;

@@ -1960,6 +1960,49 @@ ItemDef WeaponsGetDefentionIndex(int weapon)
 {
 	return view_as<ItemDef>(GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex"));
 }
+/**
+ * @brief Gets the custom ID.
+ *
+ * @param weapon            The entity index.
+ * @return                  The custom id.    
+ **/
+int WeaponsGetCustomID(int entity)
+{
+	return GetEntProp(entity, Prop_Data, m_iCustomID); // Use instead of m_iHammerID
+}
+
+/**
+ * @brief Sets the custom ID.
+ *
+ * @param entity            The entity index.
+ * @param iD                The custom id.
+ **/
+void WeaponsSetCustomID(int entity, int iD)
+{
+	SetEntProp(entity, Prop_Data, m_iCustomID, iD); // Use instead of m_iHammerID
+}
+
+/**
+ * @brief Gets the map create state.
+ *
+ * @param weapon            The weapon index.
+ * @return                  True or false.    
+ **/
+bool WeaponsIsCreated(int weapon)
+{
+	return view_as<bool>(GetEntProp(weapon, Prop_Data, "m_bSuppressAnimSounds"));
+}
+
+/**
+ * @brief Controls the map create state.
+ *
+ * @param weapon            The weapon index.
+ * @param bCreate           Enable or disable an aspect of create state.
+ **/
+void WeaponsSetCreated(int weapon, bool bCreate)
+{
+	SetEntProp(weapon, Prop_Data, "m_bSuppressAnimSounds", bCreate);
+}
 
 /**
  * @brief Gets the map weapon state.
@@ -2051,28 +2094,6 @@ void WeaponsSetReserveAmmo(int weapon, int iAmmo)
 }
 
 /**
- * @brief Gets the max reserve ammo.
- *
- * @param weapon            The weapon index.
- * @return                  The max ammo count.    
- **/
-int WeaponsGetMaxReserveAmmo(int weapon)
-{
-	return GetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount");
-}
-
-/**
- * @brief Sets the max reserve ammo.
- *
- * @param weapon            The weapon index.
- * @param iMaxAmmo          The max ammo count.  
- **/
-void WeaponsSetMaxReserveAmmo(int weapon, int iMaxAmmo)
-{
-	SetEntProp(weapon, Prop_Send, "m_iSecondaryReserveAmmoCount", iMaxAmmo);
-}
-
-/**
  * @brief Gets the current clip ammo.
  *
  * @param weapon            The weapon index.
@@ -2092,28 +2113,6 @@ void WeaponsSetMaxReserveAmmo(int weapon, int iMaxAmmo)
 void WeaponsSetClipAmmo(int weapon, int iAmmo)
 {
 	SetEntProp(weapon, Prop_Send, "m_iClip1", iAmmo);
-}
-
-/**
- * @brief Gets the max clip ammo.
- *
- * @param weapon            The weapon index.
- * @return                  The max ammo count.    
- **/
-int WeaponsGetMaxClipAmmo(int weapon)
-{
-	return GetEntProp(weapon, Prop_Send, "m_iClip2");
-}
-
-/**
- * @brief Sets the max clip ammo.
- *
- * @param weapon            The weapon index.
- * @param iMaxAmmo          The max ammo count.  
- **/
-void WeaponsSetMaxClipAmmo(int weapon, int iMaxAmmo)
-{
-	SetEntProp(weapon, Prop_Send, "m_iClip2", iMaxAmmo);
 }
 
 /**
@@ -2193,7 +2192,7 @@ bool WeaponsRemoveAll(int client, bool bDrop = false)
 		{
 			iAmount++;
 	
-			int iD = ToolsGetCustomID(weapon);
+			int iD = WeaponsGetCustomID(weapon);
 			if (iD != -1)
 			{
 				if (!WeaponsHasAccessByType(client, iD)) 
@@ -2225,7 +2224,7 @@ bool WeaponsRemoveAll(int client, bool bDrop = false)
 		ToolsSetArmor(client, 0);
 		ToolsSetHeavySuit(client, false);
 		ToolsSetDefuser(client, false);
-		ToolsSetCustomID(client, -1);
+		ToolsSetHammerID(client, -1);
 	}
 
 	return (bRemove || !iAmount);
@@ -2293,7 +2292,7 @@ void WeaponsEquip(int client, int weapon, int iD, bool bSwitch = true)
 			
 			weapon2 = WeaponsFindByName(client, sClassname);
 			
-			if (weapon2 != -1 && ToolsGetCustomID(weapon2) == iD)
+			if (weapon2 != -1 && WeaponsGetCustomID(weapon2) == iD)
 			{
 				weapon2 = -1;
 			}
@@ -2347,7 +2346,7 @@ int WeaponsGive(int client, int iD, bool bSwitch = true)
 		{
 			case ItemDef_Defuser, ItemDef_Cutters : 
 			{
-				ToolsSetCustomID(client, iD); /// used for attachment model
+				ToolsSetHammerID(client, iD); /// used for attachment model
 				ToolsSetDefuser(client, true);
 				
 				EmitSoundToClient(client, SOUND_ITEM, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
@@ -2442,8 +2441,11 @@ int WeaponsCreate(int iD, float vPosition[3] = {0.0, 0.0, 0.0}, float vAngle[3] 
 	
 	if (weapon != -1)
 	{
-		ToolsSetCustomID(weapon, iD);
+		WeaponsSetCustomID(weapon, iD);
 		WeaponsSetSpawnedByMap(weapon, false);
+		
+		gForwardData._OnWeaponCreated(weapon, iD);
+		WeaponsSetCreated(weapon, true);
 	}
 	
 	return weapon;
@@ -2544,7 +2546,7 @@ int WeaponsFindByID(int client, int iD)
 		
 		if (weapon != -1)
 		{
-			if (ToolsGetCustomID(weapon) == iD)
+			if (WeaponsGetCustomID(weapon) == iD)
 			{
 				return weapon;
 			}
@@ -2616,7 +2618,7 @@ bool WeaponsHasAccessByType(int client, int iD)
  **/
 bool WeaponsCanUse(int client, int weapon)
 {
-	int iD = ToolsGetCustomID(weapon);
+	int iD = WeaponsGetCustomID(weapon);
 	if (iD != -1)
 	{
 		if (!WeaponsHasAccessByType(client, iD)) 

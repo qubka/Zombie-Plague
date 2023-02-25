@@ -119,6 +119,8 @@ void Weapon_OnSecondaryAttack(int client, int weapon, const float vBullet[3], in
 		return;
 	}
 	
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
+	
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 0.3);
 	
 	int iDefaultFOV = GetEntProp(client, Prop_Send, "m_iDefaultFOV");
@@ -147,7 +149,7 @@ void Weapon_OnBullet(int client, int weapon, const float vBullet[3], int iCounte
 		iCounter = -1;
 	}
 	
-	SetEntProp(weapon, Prop_Data, "m_iHealth", iCounter + 1);
+	SetEntProp(weapon, Prop_Data, "m_iClip2", iCounter + 1);
 }
 
 //**********************************************
@@ -162,7 +164,7 @@ void Weapon_OnBullet(int client, int weapon, const float vBullet[3], int iCounte
 		%2,                     \
 		%3,                     \
 								\
-		GetEntProp(%2, Prop_Data, "m_iHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iClip2"), \
 								\
 		GetGameTime()           \
 	)    
@@ -177,7 +179,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
+		SetEntProp(weapon, Prop_Data, "m_iClip2", 0);
 	}
 }
 

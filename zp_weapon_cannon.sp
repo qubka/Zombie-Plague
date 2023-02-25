@@ -183,7 +183,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iAmmo, float flCurrentTi
 	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 	
 	ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });
-	ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_RELOAD);
 	
 	static float vPosition[5][3];
 

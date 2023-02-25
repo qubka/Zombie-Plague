@@ -297,6 +297,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int bTrigger, int iStateMo
 	}
 
 	ZP_SetWeaponAnimation(client, !iStateMode ? ANIM_SWITCH_TRIGGER_ON : ANIM_SWITCH_TRIGGER_OFF);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_GRENADE_PULL_PIN);
 	
 	flCurrentTime += WEAPON_SWITCH_TIME;
 
@@ -363,7 +364,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
 				CreateTimer(0.2, MineThinkHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 			}
 			
-			SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_TRIGGER_ON);
+			SetEntProp(weapon, Prop_Data, "m_iClip2", STATE_TRIGGER_ON);
 
 			ZP_SetWeaponAnimation(client, ANIM_DRAW_TRIGGER_OFF);
 		}
@@ -419,9 +420,9 @@ public Action Weapon_OnRemove(Handle hTimer, int refID)
 		%1,             \
 		%2,             \
 						\
-		GetEntProp(%2, Prop_Data, "m_iHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iClip2"), \
 						\
-		GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iSecondaryAmmoCount"), \
 						\
 		GetGameTime()   \
    )    
@@ -436,8 +437,8 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_TRIGGER_OFF);
-		SetEntProp(weapon, Prop_Data, "m_iHealth", STATE_TRIGGER_OFF);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_TRIGGER_OFF);
+		SetEntProp(weapon, Prop_Data, "m_iClip2", STATE_TRIGGER_OFF);
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	}
 }    
@@ -493,9 +494,9 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 		{
 			SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 
-			int iStateMode = !GetEntProp(weapon, Prop_Data, "m_iMaxHealth");
+			int iStateMode = !GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount");
 			
-			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", iStateMode);
+			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", iStateMode);
 			
 			EmitSoundToAll("survival/breach_activate_nobombs_01.wav", client, SNDCHAN_WEAPON);
 

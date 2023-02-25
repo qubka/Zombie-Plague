@@ -172,7 +172,7 @@ void Weapon_OnIdle(int client, int weapon, float flCurrentTime)
 	
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_IDLE_TIME);
 
-	SetEntProp(weapon, Prop_Data, "m_iMaxHealth", PUNCH_ALLOW);
+	SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", PUNCH_ALLOW);
 }
 
 void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
@@ -183,7 +183,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 	}
 
 	ZP_SetViewAnimation(client, { ANIM_PUNCH_LEFT, ANIM_PUNCH_RIGHT });
-	ZP_SetPlayerAnimation(client, AnimType_MeleeSlash);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_PRIMARY);
 	
 	delete hWeaponPunch[client];
 	hWeaponPunch[client] = CreateTimer(0.16, Weapon_OnPunch, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
@@ -198,7 +198,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-	if (GetEntProp(weapon, Prop_Data, "m_iMaxHealth"))
+	if (GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount"))
 	{
 		return;
 	}
@@ -209,7 +209,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 	}
 
 	ZP_SetWeaponAnimation(client, ANIM_PUNCH_HAND);
-	ZP_SetPlayerAnimation(client, AnimType_MeleeStab);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
 	
 	delete hWeaponPunch[client];
 	hWeaponPunch[client] = CreateTimer(0.83, Weapon_OnPunch, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
@@ -218,7 +218,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 	
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
 				
-	SetEntProp(weapon, Prop_Data, "m_iMaxHealth", PUNCH_BLOCK);            
+	SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", PUNCH_BLOCK);            
 				
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
@@ -307,7 +307,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", PUNCH_ALLOW);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", PUNCH_ALLOW);
 	}
 }      
 	

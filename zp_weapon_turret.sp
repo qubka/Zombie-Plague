@@ -1899,7 +1899,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
 	float flAngle = GetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime") + 0.5;
 	if (flAngle > 360.0) flAngle = 0.0;
-
+	
 	SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", flAngle);
 }
 
@@ -1990,11 +1990,11 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 					if (iMode == EFFECT_PLACE)
 					{
 						SentryGun(client, vPosition, vAngle, 
-								  GetEntProp(weapon, Prop_Data, "m_iHealth"), 
-								  GetEntProp(weapon, Prop_Data, "m_iMaxHealth"), 
+								  GetEntProp(weapon, Prop_Data, "m_iClip2"), 
+								  GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount"), 
 								  GetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount"), 
 								  GetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount"), 
-								  GetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks"));
+								  GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoType"));
 						
 						ZP_RemoveWeapon(client, weapon);
 						
@@ -2063,11 +2063,11 @@ bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
 				
 				if (weapon != -1)
 				{
-					SetEntProp(weapon, Prop_Data, "m_iHealth", sentry.Health);
-					SetEntProp(weapon, Prop_Data, "m_iMaxHealth", sentry.Ammo);
+					SetEntProp(weapon, Prop_Data, "m_iClip2", sentry.Health);
+					SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", sentry.Ammo);
 					SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", sentry.Rockets);
 					SetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount", sentry.Skin);
-					SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", sentry.UpgradeLevel);
+					SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoType", sentry.UpgradeLevel);
 
 					AcceptEntityInput(turret, "Kill");
 					
@@ -2151,11 +2151,11 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iHealth", ZP_GetWeaponClip(gWeapon));
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", ZP_GetWeaponAmmo(gWeapon));
+		SetEntProp(weapon, Prop_Data, "m_iClip2", ZP_GetWeaponClip(gWeapon));
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", ZP_GetWeaponAmmo(gWeapon));
 		SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", ZP_GetWeaponAmmunition(gWeapon));
 		SetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount", GetRandomInt(0, 1));
-		SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", SENTRY_MODE_NORMAL);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoType", SENTRY_MODE_NORMAL);
 		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
 	}
 }   

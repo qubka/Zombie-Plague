@@ -138,7 +138,7 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 			}
 			else
 			{
-				float flSlowdown; float flDuration; int iD = GetEntProp(inflictor, Prop_Data, "m_iHammerID");
+				float flSlowdown; float flDuration; int iD = GetEntProp(inflictor, Prop_Data, m_iCustomID);
 		
 				if (iD == gDublicat)
 				{

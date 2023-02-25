@@ -182,7 +182,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 	}
 
 	ZP_SetWeaponAnimation(client, ANIM_SLASH_START);    
-	ZP_SetPlayerAnimation(client, AnimType_MeleeSlash);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_PRIMARY);
 	
 	delete hWeaponSwing[client];
 	hWeaponSwing[client] = CreateTimer(1.0, Weapon_OnSwing, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
@@ -203,7 +203,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 	}
 
 	ZP_SetViewAnimation(client, { ANIM_SLASH2, ANIM_SLASH3 });
-	ZP_SetPlayerAnimation(client, AnimType_MeleeStab);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
 	
 	delete hWeaponStab[client];
 	hWeaponStab[client] = CreateTimer(1.0, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);

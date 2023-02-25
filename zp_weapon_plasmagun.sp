@@ -181,7 +181,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurre
 	}
 	
 	ZP_SetWeaponAnimation(client, ANIM_RELOAD); 
-	ZP_SetPlayerAnimation(client, AnimType_Reload);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_RELOAD);
 	
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
 	
@@ -256,7 +256,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON);
 	
 	ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });   
-	ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_PRIMARY);
 	
 	Weapon_OnCreatePlasma(client, weapon);
 
@@ -520,7 +520,7 @@ public Action PlasmaTouchHook(int entity, int target)
 
 		UTIL_CreateExplosion(vPosition, iFlags, _, hCvarPlasmaDamage.FloatValue, hCvarPlasmaRadius.FloatValue, "plasma", thrower, entity);
 
-		ZP_EmitSoundToAll(gSoundAttack, 2, entity, SNDCHAN_STATIC - 15);
+		ZP_EmitSoundToAll(gSoundAttack, 2, entity, SNDCHAN_STATIC);
 
 		AcceptEntityInput(entity, "Kill");
 	}

@@ -42,9 +42,6 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
-// Sound index
-int gSound;
- 
 // Item index
 int gWeapon;
 
@@ -89,7 +86,7 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 	{
 		if (IsValidEdict(inflictor))
 		{
-			if (GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
+			if (GetEntProp(inflictor, Prop_Data, m_iCustomID) == gWeapon)
 			{
 				flDamage *= ZP_IsPlayerHuman(client) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
 			}

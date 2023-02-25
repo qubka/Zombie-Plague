@@ -6,9 +6,6 @@
 		{
 			"EngineInterface"	"VEngineServer023"
 		}
-	
-		// Offs from the lib ( https://forums.alliedmods.net/showthread.php?t=191171 )
-		// You can update them only by yourself using tutorial in the link
 		"Offsets"
 		{
 			"OS"
@@ -84,9 +81,6 @@
 				"linux"		"20"
 			}
 		}
-
-		// Sigs from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
-		// You can update them only by yourself using tutorial in the link
 		"Signatures"
 		{
 			"CreateInterface"
@@ -169,9 +163,6 @@
 				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x1C\x8B\x1D\x2A\x2A\x2A\x2A\x85\xDB\x0F\x85\x2A\x2A\x2A\x2A"
 			}
 		}
-
-		// Addr from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
-		// You can update them only by yourself using tutorial in the link
 		"Addresses"
 		{
 			"server"

@@ -299,7 +299,7 @@ int ArsenalGiveMain(int client, int iSection, int iD)
 	int weapon = -1;
 
 	int weapon2 = GetPlayerWeaponSlot(client, iSection);
-	if (weapon2 == -1 || ToolsGetCustomID(weapon2) == gServerData.Melee)
+	if (weapon2 == -1 || WeaponsGetCustomID(weapon2) == gServerData.Melee)
 	{
 		weapon = WeaponsGive(client, iD, false);
 	}

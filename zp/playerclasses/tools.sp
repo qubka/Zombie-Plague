@@ -107,6 +107,8 @@ enum StudioAnimDesc
  **/
 void ToolsOnInit()
 {
+	HookEvent("player_blind", ToolsOnClientBlind, EventHookMode_Pre);
+
 	fnInitSendPropOffset(Player_bSpotted, "CBasePlayer", "m_bSpotted");
 	fnInitSendPropOffset(Player_bSpottedByMask, "CBasePlayer", "m_bSpottedByMask");
 	fnInitSendPropOffset(Player_flProgressBarStartTime, "CCSPlayer", "m_flProgressBarStartTime");
@@ -277,6 +279,34 @@ void ToolsOnClientDisconnectPost(int client)
 {
 	gClientData[client].ResetVars();
 	gClientData[client].ResetTimers();
+}
+
+/**
+ * Event callback (player_blind)
+ * @brief Client has been blind.
+ * 
+ * @param hEvent            The event handle.
+ * @param sName             The name of the event.
+ * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
+ **/
+public Action ToolsOnClientBlind(Event hEvent, char[] sName, bool dontBroadcast) 
+{
+	if (!dontBroadcast) 
+	{
+		hEvent.BroadcastDisabled = true;
+	}
+
+	int client = GetClientOfUserId(hEvent.GetInt("userid"));
+
+	if (!IsClientValid(client))
+	{
+		return Plugin_Changed;
+	}
+
+	SetEntPropFloat(client, Prop_Send, "m_flFlashMaxAlpha", 0.0);
+	SetEntPropFloat(client, Prop_Send, "m_flFlashDuration", 0.0);
+
+	return Plugin_Handled;
 }
 
 /**

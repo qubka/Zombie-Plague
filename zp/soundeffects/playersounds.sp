@@ -308,7 +308,7 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, c
 
 		if (sClassname[0] == 'w' && sClassname[1] == 'e' && sClassname[6] == '_' && sClassname[7] == 'k') // weapon_knife
 		{
-			int iD = ToolsGetCustomID(entity);
+			int iD = WeaponsGetCustomID(entity);
 			
 			if (iD != -1)
 			{
@@ -393,7 +393,7 @@ public Action PlayerSoundsNormalHook(int clients[MAXPLAYERS], int &numClients, c
 				if (!strncmp(sClassname[iLen], "_proj", 5, false))
 				{
 					Action hResult;
-					gForwardData._OnGrenadeSound(entity, ToolsGetCustomID(entity), hResult);
+					gForwardData._OnGrenadeSound(entity, WeaponsGetCustomID(entity), hResult);
 					return hResult;
 				}
 			}

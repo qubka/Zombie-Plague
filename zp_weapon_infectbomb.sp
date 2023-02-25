@@ -97,7 +97,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 		HookEvent("tagrenade_detonate", EventEntityTanade, EventHookMode_Post);
 
 		AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
-		
+
 		if (ZP_IsMapLoaded())
 		{
 			ZP_OnEngineExecute();
@@ -191,22 +191,23 @@ public Action TanadeTouchHook(int entity, int target)
  **/
 public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-	int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
-
-	static float vPosition[3];
-
 	int grenade = hEvent.GetInt("entityid");
-	vPosition[0] = hEvent.GetFloat("x"); 
-	vPosition[1] = hEvent.GetFloat("y"); 
-	vPosition[2] = hEvent.GetFloat("z");
 
 	if (IsValidEdict(grenade))
 	{
+		static float vPosition[3];
+		
+		vPosition[0] = hEvent.GetFloat("x"); 
+		vPosition[1] = hEvent.GetFloat("y"); 
+		vPosition[2] = hEvent.GetFloat("z");
+	
+		int owner = GetClientOfUserId(hEvent.GetInt("userid")); 
+	
 		float flRadius = hCvarInfectRadius.FloatValue;
 		bool bLast = hCvarInfectLast.BoolValue;
 		bool bSingle = hCvarInfectSingle.BoolValue;
 		
-		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
+		if (GetEntProp(grenade, Prop_Data, m_iCustomID) == gWeapon)
 		{
 			if (ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound())
 			{
@@ -250,13 +251,15 @@ public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast)
 				TE_SendToAll();
 			}
 			
+			ZP_EmitSoundToAll(gSound, 3, grenade, SNDCHAN_STATIC);
+			
 			AcceptEntityInput(grenade, "Kill");
-
+			
 			RequestFrame(EventEntityTanadePost);
 		}
 	}
 	
-	return Plugin_Continue;
+	return Plugin_Handled;
 }
 
 /**
@@ -293,7 +296,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 {
 	if (IsValidEdict(entity))
 	{
-		if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
+		if (GetEntProp(entity, Prop_Data, m_iCustomID) == gWeapon)
 		{
 			if (!strncmp(sSample[30], "arm", 3, false))
 			{

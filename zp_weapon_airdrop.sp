@@ -557,17 +557,18 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
  **/
 public Action EventEntityTanade(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-	static float vPosition[3]; static float vAngle[3];
-
 	int grenade = hEvent.GetInt("entityid");
-	vPosition[0] = hEvent.GetFloat("x"); 
-	vPosition[1] = hEvent.GetFloat("y"); 
-	vPosition[2] = hEvent.GetFloat("z");
 
 	if (IsValidEdict(grenade))
 	{
-		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
+		if (GetEntProp(grenade, Prop_Data, m_iCustomID) == gWeapon)
 		{
+			static float vPosition[3]; static float vAngle[3];
+		
+			vPosition[0] = hEvent.GetFloat("x"); 
+			vPosition[1] = hEvent.GetFloat("y"); 
+			vPosition[2] = hEvent.GetFloat("z");
+
 			vAngle[1] = GetRandomFloat(0.0, 360.0);
 		
 			float flDuration = hCvarAirdropSmokeLife.FloatValue;
@@ -740,7 +741,8 @@ public Action HelicopterDropHook(Handle hTimer, int refID)
 		if (iAttach == -1) iAttach = LookupEntityAttachment(entity, "dropped");
 		GetEntityAttachment(entity, iAttach, vPosition, vAngle);
 		
-		int iType = GetEntProp(entity, Prop_Data, "m_iHammerID"); int drop; int iCollision; int iDamage; int iHealth = hCvarAirdropHealth.IntValue;
+		int drop;
+		int iType = GetEntProp(entity, Prop_Data, "m_iHammerID"); int iCollision; int iDamage; int iHealth = hCvarAirdropHealth.IntValue;
 		switch (iType)
 		{
 			case SAFE :
@@ -1074,7 +1076,7 @@ public void BagUseHook(int entity, int activator, int caller, UseType use, float
 	vVelocity[1] = GetRandomFloat(-360.0, 360.0);
 	vVelocity[2] = 10.0 + GetRandomFloat(0.0, 10.0);
 
-	SpawnRandomWeapon(vPosition, vAngle, vVelocity);
+	SpawnRandomWeapon(vPosition, vAngle, vVelocity, gType);
 	
 	int iLeft = GetEntProp(entity, Prop_Data, "m_iHammerID");
 	if (iLeft)
@@ -1111,7 +1113,7 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
 
-		SpawnRandomWeapon(vPosition, vAngle, NULL_VECTOR/*, GetEntProp(entity, Prop_Data, "m_iHammerID"))*/);
+		SpawnRandomWeapon(vPosition, vAngle, NULL_VECTOR, gType);
 		
 		SDKUnhook(entity, SDKHook_OnTakeDamage, CaseDamageHook);
 	}
@@ -1168,55 +1170,4 @@ stock int LeftToBody(int iLeft)
 	else if (flLeft > 0.4) return 2;
 	else if (flLeft > 0.2) return 3;
 	return 4;   
-}
-
-/**
- * @brief Spawn the random weapon.
- *       
- * @param vPosition         The origin of the spawn.
- * @param vAngle            The angle of the spawn.
- * @param vVelocity         The velocity of the spawn.
- **/
-stock void SpawnRandomWeapon(const float vPosition[3], const float vAngle[3], const float vVelocity[3])
-{
-	int iD = FindRandomWeapon();
-	if (iD != -1)
-	{
-		int weapon = ZP_CreateWeapon(iD, vPosition, vAngle);
-		
-		if (weapon != -1)
-		{
-			TeleportEntity(weapon, NULL_VECTOR, NULL_VECTOR, vVelocity);
-		}
-	}
-}
-
-/**
- * @brief Find the random id of any custom weapons.
- * 
- * @return                  The weapon id.
- **/
-stock int FindRandomWeapon() 
-{
-	int iSize = ZP_GetNumberWeapon();
-	
-	int[] weaponID = new int[iSize]; int x;
-
-	for (int i = 0; i < iSize; i++)
-	{
-		ItemDef iItem = ZP_GetWeaponDefIndex(i);
-		if (!IsGun(iItem))
-		{
-			continue;
-		}
-		
-		if (!ZP_ClassHasTypeBits(ZP_GetWeaponTypes(i), gType) || !ZP_IsWeaponDrop(i))
-		{
-			continue;
-		}
-
-		weaponID[x++] = i;
-	}
-	
-	return (x) ? weaponID[GetRandomInt(0, x-1)] : -1;
 }

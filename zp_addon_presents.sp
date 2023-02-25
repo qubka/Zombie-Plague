@@ -46,6 +46,7 @@ public Plugin myinfo =
  **/
 enum 
 {
+	SAFE,
 	EXPL,
 	HEAVY,
 	LIGHT,
@@ -541,17 +542,20 @@ public Action CaseSpawnHook(Handle hTimer)
 				vColor = {95, 158, 160, 255};  
 			} 
 		}
-		
-		int iHealth = hCvarPresentHealth.IntValue;
-		
-		int iFlags = PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR;
-		if (iHealth <= 0) iFlags |= PHYS_MOTIONDISABLED;
 
+		int iHealth = hCvarPresentHealth.IntValue;
+		int iFlags = PHYS_FORCESERVERSIDE | PHYS_NOTAFFECTBYROTOR;
+		if (iHealth <= 0) 
+		{
+			iFlags |= PHYS_MOTIONDISABLED;
+		}
+		
 		int drop = UTIL_CreatePhysics("present", vPosition, NULL_VECTOR, sModel, iFlags);
 		
 		if (drop != -1)
 		{
-			//SetEntProp(drop, Prop_Data, "m_iHammerID", iType);
+			// TODO: Spawn using case type
+			///SetEntProp(drop, Prop_Data, "m_iHammerID", iType);
 			
 			if (iHealth > 0)
 			{
@@ -638,8 +642,8 @@ public Action CaseDamageHook(int entity, int &attacker, int &inflictor, float &f
 						
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
-	
-		SpawnRandomWeapon(vPosition, vAngle);
+
+		SpawnRandomWeapon(vPosition, vAngle, NULL_VECTOR, gType);
 		
 		SDKUnhook(entity, SDKHook_OnTakeDamage, CaseDamageHook);
 				
@@ -666,7 +670,7 @@ public Action CaseTouchHook(int entity, int target)
 			GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 			GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vAngle);
 
-			SpawnRandomWeapon(vPosition, vAngle);
+			SpawnRandomWeapon(vPosition, vAngle, NULL_VECTOR, gType);
 
 			AcceptEntityInput(entity, "Kill");
 		}
@@ -694,51 +698,6 @@ public Action CaseTouchHook(int entity, int target)
 //**********************************************
 //* Item (npc) stocks.                         *
 //**********************************************
-
-/**
- * @brief Spawn the random weapon.
- *       
- * @param vPosition         The origin of the spawn.
- * @param vAngle            The angle of the spawn.
- **/
-stock void SpawnRandomWeapon(const float vPosition[3], const float vAngle[3])
-{
-	int iD = FindRandomWeapon();
-	if (iD != -1)
-	{
-		ZP_CreateWeapon(iD, vPosition, vAngle);
-	}
-}
-
-/**
- * @brief Find the random id of any custom weapons.
- *       
- * @return                  The weapon id.
- **/
-stock int FindRandomWeapon() 
-{
-	int iSize = ZP_GetNumberWeapon();
-	
-	int[] weaponID = new int[iSize]; int x;
-	
-	for (int i = 0; i < iSize; i++)
-	{
-		ItemDef iItem = ZP_GetWeaponDefIndex(i);
-		if (!IsGun(iItem))
-		{
-			continue;
-		}
-		
-		if (!ZP_ClassHasTypeBits(ZP_GetWeaponTypes(i), gType) || !ZP_IsWeaponDrop(i))
-		{
-			continue;
-		}
-		
-		weaponID[x++] = i;
-	}
-	
-	return (x) ? weaponID[GetRandomInt(0, x-1)] : -1;
-}
 
 /**
  * @brief Find the random position from the navigation mesh.

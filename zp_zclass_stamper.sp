@@ -175,6 +175,8 @@ public Action ZP_OnClientSkillUsed(int client)
 			CreateTimer(ZP_GetClassSkillDuration(gZombie), CoffinExploadHook, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 			CreateTimer(0.1, CoffinThinkHook, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
+		
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_CATCH_WEAPON);
 	}
 	
 	return Plugin_Continue;

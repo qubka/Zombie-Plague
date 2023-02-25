@@ -273,7 +273,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 				SetEntProp(entity, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
 				SetEntProp(entity, Prop_Data, "m_CollisionGroup", COLLISION_GROUP_WEAPON);
 
-				int iHealth = GetEntProp(weapon, Prop_Data, "m_iHealth");
+				int iHealth = GetEntProp(weapon, Prop_Data, "m_iClip2");
 				
 				if (iHealth > 0)
 				{
@@ -346,7 +346,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iHealth", ZP_GetWeaponClip(gWeapon));
+		SetEntProp(weapon, Prop_Data, "m_iClip2", ZP_GetWeaponClip(gWeapon));
 	}
 }   
 	
@@ -436,7 +436,7 @@ public void MineUseHook(int entity, int activator, int caller, UseType use, floa
 				
 				if (weapon != -1)
 				{
-					SetEntProp(weapon, Prop_Data, "m_iHealth", GetEntProp(entity, Prop_Data, "m_iHealth"));
+					SetEntProp(weapon, Prop_Data, "m_iClip2", GetEntProp(entity, Prop_Data, "m_iHealth"));
 					
 					AcceptEntityInput(entity, "Kill");
 				}

@@ -207,8 +207,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iChangeMode, float flCur
 	if (!iChangeMode)
 	{
 		ZP_SetViewAnimation(client, { ANIM_SLASH1, ANIM_SLASH2 });  
-		
-		ZP_SetPlayerAnimation(client, AnimType_MeleeSlash);
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_PRIMARY);
 		
 		delete hWeaponStab[client];
 		hWeaponStab[client] = CreateTimer(1.0, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
@@ -216,8 +215,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iChangeMode, float flCur
 	else
 	{
 		ZP_SetViewAnimation(client, { ANIM_STAB1, ANIM_STAB2 }); 
-		
-		ZP_SetPlayerAnimation(client, AnimType_MeleeStab);
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
 		
 		delete hWeaponStab[client];
 		hWeaponStab[client] = CreateTimer(0.2, Weapon_OnStab, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
@@ -239,7 +237,8 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iChangeMode, float flC
 	}
 
 	ZP_SetWeaponAnimation(client, !iChangeMode ? ANIM_MOVESTAB : ANIM_MOVESLASH); 
-
+	ZP_SetPlayerAnimation(client, !iChangeMode ? PLAYERANIMEVENT_SILENCER_ATTACH : PLAYERANIMEVENT_SILENCER_DETACH);
+	
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
 			
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
@@ -318,7 +317,7 @@ public Action Weapon_OnStab(Handle hTimer, int userID)
 
 	if (ZP_IsPlayerHoldWeapon(client, weapon, gWeapon))
 	{    
-		Weapon_OnSlash(client, weapon, 0.0, !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"));
+		Weapon_OnSlash(client, weapon, 0.0, !GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount"));
 	}
 
 	return Plugin_Stop;
@@ -335,7 +334,7 @@ public Action Weapon_OnStab(Handle hTimer, int userID)
 		%1,                     \
 		%2,                     \
 								\
-		GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iSecondaryAmmoCount"), \
 								\
 		GetGameTime() \
 	)
@@ -350,7 +349,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_SLASH);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_SLASH);
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	}
 }     
@@ -402,7 +401,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 	if (weaponID == gWeapon)
 	{
 		static float flSlowdown;
-		if ((flSlowdown = hCvarHammerActiveSlow.FloatValue) && !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"))
+		if ((flSlowdown = hCvarHammerActiveSlow.FloatValue) && !GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount"))
 		{
 			SetEntPropFloat(client, Prop_Send, "m_flStamina", flSlowdown);
 		}
@@ -412,7 +411,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 		{
 			SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 
-			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", !GetEntProp(weapon, Prop_Data, "m_iMaxHealth"));
+			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", !GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount"));
 		}
 
 		if (iButtons & IN_ATTACK)

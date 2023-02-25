@@ -166,6 +166,8 @@ public Action ZP_OnClientSkillUsed(int client)
 		hCvarSkillRadius.GetString(sRadius, sizeof(sRadius));
 
 		UTIL_CreateTesla(client, vPosition, _, _, sRadius, _, "15", "25", _, _, "7.0", "9.0", _, _, _, _, ZP_GetClassSkillDuration(gZombie));
+		
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_GRENADE_PULL_PIN);
 	}
 	
 	return Plugin_Continue;

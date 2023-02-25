@@ -362,7 +362,7 @@ public Action HitGroupsOnTakeDamage(int client, int &attacker, int &inflictor, f
  **/
 public void HitGroupsOnHurtSpawn(int entity)
 {
-	ToolsSetCustomID(entity, -1);
+	WeaponsSetCustomID(entity, -1);
 }    
  
 /**
@@ -462,7 +462,7 @@ bool HitGroupsOnCalculateDamage(int client, int &attacker, int &inflictor, float
 		int dealer = IsValidEdict(weapon) ? weapon : HitGroupsHasInfclictor(sClassname) ? inflictor : -1;
 		if (dealer != -1)
 		{
-			int iD = ToolsGetCustomID(dealer);
+			int iD = WeaponsGetCustomID(dealer);
 			if (iD != -1)
 			{
 				flDamageRatio *= WeaponsGetDamage(iD); 

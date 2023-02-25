@@ -181,6 +181,8 @@ public Action ZP_OnClientSkillUsed(int client)
 			GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 			UTIL_CreateParticle(client, vPosition, _, _, sEffect, ZP_GetClassSkillDuration(gZombie));
 		}
+		
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_CATCH_WEAPON);
 	}
 	
 	return Plugin_Continue;

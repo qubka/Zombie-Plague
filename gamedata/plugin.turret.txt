@@ -2,8 +2,6 @@
 {
 	"csgo"
 	{
-		// Offs from the lib ( https://forums.alliedmods.net/showthread.php?t=191171 )
-		// You can update them only by yourself using tutorial in the link
 		"Offsets"
 		{
 			// @link https://github.com/VSES/SourceEngine2007/blob/43a5c90a5ada1e69ca044595383be67f40b33c61/src_main/public/tier1/utlvector.h#L347
@@ -13,9 +11,6 @@
 				"linux"		"12"
 			}
 		}
-
-		// Sigs from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
-		// You can update them only by yourself using tutorial in the link
 		"Signatures"
 		{
 			"CBaseAnimating::LookupPoseParameter" // Str: "body_pitch"

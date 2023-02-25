@@ -85,6 +85,8 @@ void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 		return;
 	}
 	
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
+	
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", flCurrentTime + 0.3);
 	
 	int iDefaultFOV = GetEntProp(client, Prop_Send, "m_iDefaultFOV");

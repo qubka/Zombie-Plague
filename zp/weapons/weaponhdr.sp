@@ -79,21 +79,19 @@ int WeaponHDRCreateSwapWeapon(int iD, int client)
 		}
 	}
 	
-	weapon1 = WeaponsSpawn(iD);
+	weapon1 = WeaponsCreate(iD);
 
 	if (weapon1 != -1)
 	{
-		ToolsSetCustomID(weapon1, iD);
-		WeaponsSetSpawnedByMap(weapon1, false);
-		
 		ToolsSetOwner(weapon1, client);
 		WeaponsSetOwner(weapon1, client);
 
 		SetEntityMoveType(weapon1, MOVETYPE_NONE);
 		
-		//AcceptEntityInput(weapon1, "DisableDraw"); 
-		//AcceptEntityInput(weapon1, "DisableShadow"); 
 		UTIL_SetRenderColor(weapon1, Color_Alpha, 0);
+		//AcceptEntityInput(weapon1, "DisableDraw"); 
+		AcceptEntityInput(weapon1, "DisableShadow"); 
+		AcceptEntityInput(weapon1, "DisableReceivingFlashlight");
 
 		SetVariantString("!activator");
 		AcceptEntityInput(weapon1, "SetParent", client, weapon1);
@@ -432,9 +430,10 @@ void WeaponHDRSetDroppedModel(int weapon, int iD, ModelType nModel = ModelType_I
 		}
 		else
 		{
-			//AcceptEntityInput(weapon, "DisableDraw"); 
-			//AcceptEntityInput(weapon, "DisableShadow");
 			UTIL_SetRenderColor(weapon, Color_Alpha, 0);
+			//AcceptEntityInput(weapon, "DisableDraw"); 
+			AcceptEntityInput(weapon, "DisableShadow");
+			AcceptEntityInput(weapon, "DisableReceivingFlashlight");
 			
 			if (WeaponHDRGetSwappedWeapon(weapon) == -1)
 			{

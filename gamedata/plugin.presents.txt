@@ -2,8 +2,6 @@
 {
 	"csgo"
 	{
-		// Sigs from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
-		// You can update them only by yourself using tutorial in the link
 		"Signatures"
 		{
 			"nav_update_lighting" // Str: "Computed lighting for %d/%d areas\n"
@@ -13,9 +11,6 @@
 				"linux"		"\x55\x89\xE5\x56\x8B\x45\x08\x53\x83\x38\x02"
 			}
 		}
-		
-		// Addr from the lib ( https://forums.alliedmods.net/showthread.php?t=309074 )
-		// You can update them only by yourself using tutorial in the link
 		"Addresses"
 		{
 			"TheNavAreas"

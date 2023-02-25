@@ -173,14 +173,14 @@ void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iReloadMod
 			}
 
 			ZP_SetViewAnimation(client, { ANIM_INSERT1, ANIM_INSERT2 });
-			ZP_SetPlayerAnimation(client, AnimType_ReloadLoop);
+			ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_RELOAD_LOOP);
 			
 			flCurrentTime += WEAPON_INSERT_TIME;
 			
 			SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 			SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
 
-			SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_END);
+			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoType", RELOAD_END);
 		}
 		
 		case RELOAD_END :
@@ -188,7 +188,7 @@ void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iReloadMod
 			SetEntProp(weapon, Prop_Send, "m_iClip1", iClip + 1);
 			SetEntProp(weapon, Prop_Send, "m_iPrimaryReserveAmmoCount", iAmmo - 1);
 			
-			SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_INSERT);
+			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoType", RELOAD_INSERT);
 		}
 	}
 }
@@ -237,14 +237,14 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iReloadMo
 	if (iReloadMode == RELOAD_START)
 	{
 		ZP_SetWeaponAnimation(client, ANIM_START_INSERT); 
-		ZP_SetPlayerAnimation(client, AnimType_ReloadStart);
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_RELOAD_START);
 		
 		flCurrentTime += WEAPON_INSERT_START_TIME;
 		
 		SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 		SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
 
-		SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_INSERT);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoType", RELOAD_INSERT);
 		
 		SetEntProp(client, Prop_Send, "m_iFOV", GetEntProp(client, Prop_Send, "m_iDefaultFOV"));
 	}
@@ -253,14 +253,14 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iReloadMo
 void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iReloadMode, float flCurrentTime)
 {
 	ZP_SetWeaponAnimation(client, ANIM_FINISH_INSERT);        
-	ZP_SetPlayerAnimation(client, AnimType_ReloadEnd);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_RELOAD_END);
 	
 	flCurrentTime += WEAPON_INSERT_END_TIME;
 	
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime);
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime);
 
-	SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_START);
+	SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoType", RELOAD_START);
 	
 	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 }
@@ -271,7 +271,7 @@ void Weapon_OnDeploy(int client, int weapon, int iClip, int iAmmo, int iReloadMo
 
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponDeploy(gWeapon));
 	
-	SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_START);
+	SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoType", RELOAD_START);
 	
 	SetEntProp(client, Prop_Send, "m_iShotsFired", 0);
 }
@@ -311,7 +311,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iR
 	ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 	
 	ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });
-	ZP_SetPlayerAnimation(client, AnimType_FirePrimary);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_PRIMARY);
 	
 	Weapon_OnCreateGrenade(client);
 
@@ -355,6 +355,8 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 	{
 		return;
 	}
+	
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
 	
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.3);
 	
@@ -424,7 +426,7 @@ void Weapon_OnCreateGrenade(int client)
 								\
 		GetEntProp(%2, Prop_Send, "m_iPrimaryReserveAmmoCount"), \
 								\
-		GetEntProp(%2, Prop_Send, "m_iNumEmptyAttacks"), \
+		GetEntProp(%2, Prop_Data, "m_iSecondaryAmmoType"), \
 								\
 		GetGameTime()           \
 	)
@@ -439,7 +441,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Send, "m_iNumEmptyAttacks", RELOAD_START);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoType", RELOAD_START);
 	}
 }     
 	

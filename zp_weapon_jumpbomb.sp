@@ -86,13 +86,8 @@ public void OnLibraryAdded(const char[] sLibrary)
 {
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		HookEvent("player_blind", EventPlayerBlind, EventHookMode_Pre);
-
-		HookEvent("flashbang_detonate", EventEntityFlashPre, EventHookMode_Pre);
-		HookEvent("flashbang_detonate", EventEntityFlashPost, EventHookMode_Post);
-
 		AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
-		
+
 		if (ZP_IsMapLoaded())
 		{
 			ZP_OnEngineExecute();
@@ -132,6 +127,11 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
+		SetVariantFloat(GetGameTime() + 9999.9);
+		AcceptEntityInput(grenade, "SetTimer"); 
+		
+		CreateTimer(0.1, GrenadeThinkHook, EntIndexToEntRef(grenade), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+		
 		if (hCvarJumpTrail.BoolValue)
 		{
 			TE_SetupBeamFollow(grenade, gTrail, 0, 1.0, 10.0, 10.0, 5, WEAPON_BEAM_COLOR);
@@ -141,106 +141,62 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 }
 
 /**
- * Event callback (flashbang_detonate)
- * @brief The flashbang is about to explode.
+ * @brief Main timer for grenade think.
  * 
- * @param hEvent            The event handle.
- * @param sName             The name of the event.
- * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
- **/
-public Action EventEntityFlashPre(Event hEvent, char[] sName, bool dontBroadcast) 
-{
-	if (!dontBroadcast) 
-	{
-		hEvent.BroadcastDisabled = true;
-	}
-	
-	return Plugin_Changed;
-}
-
-/**
- * Event callback (flashbang_detonate)
- * @brief The flashbang is exployed.
- * 
- * @param hEvent            The event handle.
- * @param sName             The name of the event.
- * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
- **/
-public Action EventEntityFlashPost(Event hEvent, char[] sName, bool dontBroadcast) 
-{
-	static float vPosition[3]; static float vPosition2[3];
-
-	int grenade = hEvent.GetInt("entityid");
-	vPosition[0] = hEvent.GetFloat("x"); 
-	vPosition[1] = hEvent.GetFloat("y"); 
-	vPosition[2] = hEvent.GetFloat("z");
-
-	if (IsValidEdict(grenade))
-	{
-		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
-		{
-			float flRadius = hCvarJumpRadius.FloatValue;
-			float flKnock = ZP_GetWeaponKnockBack(gWeapon);
-			
-			int i; int it = 1; /// iterator
-			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
-			{
-				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
-		
-				UTIL_CreatePhysForce(i, vPosition, vPosition2, GetVectorDistance(vPosition, vPosition2), flKnock, flRadius);
-				
-				UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);
-			}
-
-			static char sEffect[SMALL_LINE_LENGTH];
-			hCvarJumpEffect.GetString(sEffect, sizeof(sEffect));
-			
-			if (hasLength(sEffect))
-			{
-				int entity = UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
-				
-				if (entity != -1)
-				{
-					CreateTimer(0.1, EntityOnPhysExp, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
-				}
-			}
-			else 
-			{
-				TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, WEAPON_BEAM_COLOR, 0, 0);
-				TE_SendToAll();
-			}
-			
-			
-			AcceptEntityInput(grenade, "Kill");
-		}
-	}
-	
-	return Plugin_Continue;
-}
-
-/**
- * @brief Timer for the additional phys explosion.
- *
  * @param hTimer            The timer handle.
- * @param refID             The reference index.
+ * @param refID             The reference index.                    
  **/
-public Action EntityOnPhysExp(Handle hTimer, int refID)
+public Action GrenadeThinkHook(Handle hTimer, int refID)
 {
-	int entity = EntRefToEntIndex(refID);
+	int grenade = EntRefToEntIndex(refID);
 
-	if (entity != -1)
+	if (grenade != -1)
 	{
-		static float vPosition[3];
-		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
- 
-		entity = UTIL_CreateProjectile(vPosition, NULL_VECTOR, gWeapon);
+		static float vPosition[3]; static float vPosition2[3]; static float vVelocity[3]; 
 		
-		if (entity != -1)
+		GetEntPropVector(grenade, Prop_Data, "m_vecVelocity", vVelocity);
+		
+		if (GetVectorLength(vVelocity) > 0.1)
 		{
-			UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND | EXP_NOSMOKE | EXP_NOUNDERWATER, _, hCvarJumpDamage.FloatValue, hCvarJumpRadius.FloatValue, "jumpbomb", _, entity);
-
-			AcceptEntityInput(entity, "Kill");
+			return Plugin_Continue;
 		}
+		
+		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
+
+		float flRadius = hCvarJumpRadius.FloatValue;
+		float flKnock = ZP_GetWeaponKnockBack(gWeapon);
+		
+		int i; int it = 1; /// iterator
+		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+		{
+			GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+	
+			UTIL_CreatePhysForce(i, vPosition, vPosition2, GetVectorDistance(vPosition, vPosition2), flKnock, flRadius);
+			
+			UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);
+		}
+
+		static char sEffect[SMALL_LINE_LENGTH];
+		hCvarJumpEffect.GetString(sEffect, sizeof(sEffect));
+		
+		if (hasLength(sEffect))
+		{
+			int entity = UTIL_CreateParticle(_, vPosition, _, _, sEffect, 2.0);
+			
+			if (entity != -1)
+			{
+				UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND | EXP_NOSMOKE | EXP_NOUNDERWATER, _, hCvarJumpDamage.FloatValue, hCvarJumpRadius.FloatValue, "jumpbomb", _, grenade);
+			}
+		}
+		else 
+		{
+			TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, WEAPON_BEAM_COLOR, 0, 0);
+			TE_SendToAll();
+		}
+		
+		ZP_EmitSoundToAll(gSound, 3, grenade, SNDCHAN_STATIC);
+
+		AcceptEntityInput(grenade, "Kill");
 	}
 	
 	return Plugin_Stop;
@@ -262,39 +218,11 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 {
 	if (IsValidEdict(inflictor))
 	{
-		if (GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
+		if (GetEntProp(inflictor, Prop_Data, m_iCustomID) == gWeapon)
 		{
 			flDamage = 0.0;
 		}
 	}
-}
-
-/**
- * Event callback (player_blind)
- * @brief Client has been blind.
- * 
- * @param hEvent            The event handle.
- * @param sName             The name of the event.
- * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
- **/
-public Action EventPlayerBlind(Event hEvent, char[] sName, bool dontBroadcast) 
-{
-	if (!dontBroadcast) 
-	{
-		hEvent.BroadcastDisabled = true;
-	}
-	
-	int client = GetClientOfUserId(hEvent.GetInt("userid"));
-
-	if (!IsClientValid(client))
-	{
-		return Plugin_Continue;
-	}
-	
-	SetEntPropFloat(client, Prop_Send, "m_flFlashMaxAlpha", 0.0);
-	SetEntPropFloat(client, Prop_Send, "m_flFlashDuration", 0.0);
-	
-	return Plugin_Handled;
 }
 
 /**
@@ -316,7 +244,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 {
 	if (IsValidEdict(entity))
 	{
-		if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
+		if (GetEntProp(entity, Prop_Data, m_iCustomID) == gWeapon)
 		{
 			if (!strncmp(sSample[27], "hit", 3, false))
 			{
@@ -328,11 +256,12 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 			}
 			else if (!strncmp(sSample[29], "exp", 3, false))
 			{
-				float oVolume; int oLevel; int oFlags; int oPitch;
+				/*float oVolume; int oLevel; int oFlags; int oPitch;
 				if (ZP_GetSound(gSound, 3, sSample, sizeof(sSample), oVolume, oLevel, oFlags, oPitch))
 				{
 					return Plugin_Changed; 
-				}
+				}*/
+				return Plugin_Stop; 
 			}
 		}
 	}

@@ -168,6 +168,8 @@ public Action ZP_OnClientSkillUsed(int client)
 			
 			SDKHook(entity, SDKHook_Touch, BombTouchHook);
 		}
+		
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_THROW_GRENADE);
 	}
 	
 	return Plugin_Continue;

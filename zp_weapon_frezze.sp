@@ -107,8 +107,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 {
 	if (!strcmp(sLibrary, "zombieplague", false))
 	{
-		HookEvent("smokegrenade_detonate", EventEntitySmokePre, EventHookMode_Pre);
-		HookEvent("smokegrenade_detonate", EventEntitySmokePost, EventHookMode_Post);
+		HookEvent("smokegrenade_detonate", EventEntitySmoke, EventHookMode_Post);
 
 		AddNormalSoundHook(view_as<NormalSHook>(SoundsNormalHook));
 		
@@ -229,43 +228,26 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 
 /**
  * Event callback (smokegrenade_detonate)
- * @brief The smokegrenade is about to explode.
- * 
- * @param hEvent            The event handle.
- * @param sName             The name of the event.
- * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
- **/
-public Action EventEntitySmokePre(Event hEvent, char[] sName, bool dontBroadcast) 
-{
-	if (!dontBroadcast) 
-	{
-		hEvent.BroadcastDisabled = true;
-	}
-	
-	return Plugin_Changed;
-}
-
-/**
- * Event callback (smokegrenade_detonate)
  * @brief The smokegrenade is exployed.
  * 
  * @param hEvent            The event handle.
  * @param sName             The name of the event.
  * @param dontBroadcast     If true, event is broadcasted to all clients, false if not.
  **/
-public Action EventEntitySmokePost(Event hEvent, char[] sName, bool dontBroadcast) 
+public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-	static float vPosition[3]; static float vAngle[3]; static float vPosition2[3];
-
 	int grenade = hEvent.GetInt("entityid");
-	vPosition[0] = hEvent.GetFloat("x"); 
-	vPosition[1] = hEvent.GetFloat("y"); 
-	vPosition[2] = hEvent.GetFloat("z");
-	
+
 	if (IsValidEdict(grenade))
 	{
-		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
+		if (GetEntProp(grenade, Prop_Data, m_iCustomID) == gWeapon)
 		{
+			static float vPosition[3]; static float vAngle[3]; static float vPosition2[3];
+		
+			vPosition[0] = hEvent.GetFloat("x"); 
+			vPosition[1] = hEvent.GetFloat("y"); 
+			vPosition[2] = hEvent.GetFloat("z");
+	
 			float flRadius = hCvarFreezeRadius.FloatValue;
 			float flDuration = hCvarFreezeDuration.FloatValue;
 			
@@ -314,6 +296,13 @@ public Action EventEntitySmokePost(Event hEvent, char[] sName, bool dontBroadcas
 			{
 				TE_SetupBeamRingPoint(vPosition, 10.0, flRadius, gBeam, gHalo, 1, 1, 0.2, 100.0, 1.0, WEAPON_BEAM_COLOR, 0, 0);
 				TE_SendToAll();
+			}
+			
+			int entity = UTIL_CreateExplosion(vPosition, EXP_NOFIREBALL | EXP_NOSOUND | EXP_NODAMAGE);
+		
+			if (entity != -1)
+			{
+				ZP_EmitSoundToAll(gSound, 3, entity, SNDCHAN_STATIC);
 			}
 			
 			TE_SetupSparks(vPosition, NULL_VECTOR, 5000, 1000);
@@ -385,7 +374,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 {
 	if (IsValidEdict(entity))
 	{
-		if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
+		if (GetEntProp(entity, Prop_Data, m_iCustomID) == gWeapon)
 		{
 			if (!strncmp(sSample[31], "hit", 3, false))
 			{
@@ -397,11 +386,12 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 			}
 			else if (!strncmp(sSample[29], "emit", 4, false))
 			{
-				float oVolume; int oLevel; int oFlags; int oPitch;
+				/*float oVolume; int oLevel; int oFlags; int oPitch;
 				if (ZP_GetSound(gSound, 3, sSample, sizeof(sSample), oVolume, oLevel, oFlags, oPitch))
 				{
 					return Plugin_Changed; 
-				}
+				}*/
+				return Plugin_Stop;
 			}
 		}
 	}

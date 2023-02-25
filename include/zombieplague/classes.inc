@@ -49,35 +49,6 @@ enum BonusType
 /**
  * @endsection
  **/
- 
-/**
- * @section Number of valid animations.
- **/ 
-enum AnimType
-{
-	AnimType_Invalid = -1,        /** Used as return value when an event doens't exist. */
-	
-	AnimType_FirePrimary,
-	AnimType_FireSecondary,
-	AnimType_MeleeSlash,
-	AnimType_MeleeStab,
-	AnimType_FireSilent,
-	AnimType_SwitchSilent,
-	AnimType_ThrowStart,
-	AnimType_ThrowFinish,
-	AnimType_Jump,
-	AnimType_Reload,
-	AnimType_ReloadStart,
-	AnimType_ReloadLoop,
-	AnimType_ReloadEnd,
-	AnimType_BombAbort,
-	AnimType_SwitchWeapon,
-	AnimType_ThrowAbort = 17,
-	AnimType_SwitchAbort
-};
-/**
- * @endsection
- **/
 
 #include "zombieplague/classes/account.inc"
 #include "zombieplague/classes/skillsystem.inc"
@@ -721,16 +692,16 @@ stock int ZP_GetPlayerTeam(int client)
  * @brief Sets the player animating event.
  *
  * @param client            The client index.
- * @param anim              The event type.
+ * @param event             The event type.
  * @param data              The activity index.
  *
  * @noreturn
  **/
-stock void ZP_SetPlayerAnimation(int client, AnimType anim, int data = 0)
+stock void ZP_SetPlayerAnimation(int client, PlayerAnimEvent event, int data = 0)
 {
 	TE_Start("PlayerAnimEvent");
 	TE_WriteNum("m_hPlayer", EntIndexToEntRef(client) & 0x7FFF);
-	TE_WriteNum("m_iEvent", view_as<int>(anim));
+	TE_WriteNum("m_iEvent", view_as<int>(event));
 	TE_WriteNum("m_nData", data);
 	TE_SendToAll();
 }

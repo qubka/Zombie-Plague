@@ -128,6 +128,8 @@ public Action ZP_OnClientSkillUsed(int client)
 	
 			CreateTimer(hCvarSkillDelay.FloatValue, ClientOnToxicGas, EntIndexToEntRef(entity), TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 		}
+		
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_GRENADE_PULL_PIN);
 	}
 	
 	return Plugin_Continue;

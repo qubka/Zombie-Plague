@@ -153,7 +153,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, int iCounter,
 	}
 	
 	ZP_SetWeaponAnimation(client, ANIM_RELOAD); 
-	ZP_SetPlayerAnimation(client, AnimType_Reload);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_RELOAD);
 	
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
 	
@@ -180,8 +180,8 @@ void Weapon_OnReloadFinish(int client, int weapon, int iClip, int iAmmo, int iCo
 
 void Weapon_OnIdle(int client, int weapon, int iClip, int iAmmo, int iCounter, int iStateMode, float flCurrentTime)
 {
-	SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
-	SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_NORMAL);
+	SetEntProp(weapon, Prop_Data, "m_iClip2", 0);
+	SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_NORMAL);
 	
 	if (iClip <= 0)
 	{
@@ -218,18 +218,18 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 	
 	if (iAmmo <= 0)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_NORMAL);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_NORMAL);
 	}
 	else
 	{
 		if (iCounter > hCvarBalrogActiveCounter.IntValue)
 		{
-			SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_ACTIVE);
+			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_ACTIVE);
 
 			iCounter = -1;
 		}
 		
-		SetEntProp(weapon, Prop_Data, "m_iHealth", iCounter + 1);
+		SetEntProp(weapon, Prop_Data, "m_iClip2", iCounter + 1);
 	}
 	
 	if (iStateMode)
@@ -248,6 +248,8 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 		
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_WEAPON);
 	}
+	
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_PRIMARY);
 	
 	SetEntPropFloat(weapon, Prop_Send, "m_flTimeWeaponIdle", flCurrentTime + WEAPON_ATTACK_TIME);
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + ZP_GetWeaponShoot(gWeapon));       
@@ -301,6 +303,8 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		return;
 	}
 	
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
+	
 	SetEntPropFloat(weapon, Prop_Send, "m_fLastShotTime", flCurrentTime + 0.3);
 	
 	int iDefaultFOV = GetEntProp(client, Prop_Send, "m_iDefaultFOV");
@@ -332,9 +336,9 @@ void Weapon_OnCreateBullet(int client, int weapon, int iMode, int iSeed, float f
 								\
 		GetEntProp(%2, Prop_Send, "m_iPrimaryReserveAmmoCount"), \
 								\
-		GetEntProp(%2, Prop_Data, "m_iHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iClip2"), \
 								\
-		GetEntProp(%2, Prop_Data, "m_iMaxHealth"), \
+		GetEntProp(%2, Prop_Data, "m_iSecondaryAmmoCount"), \
 								\
 		GetGameTime()           \
 	)    
@@ -349,8 +353,8 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 {
 	if (weaponID == gWeapon)
 	{
-		SetEntProp(weapon, Prop_Data, "m_iHealth", 0);
-		SetEntProp(weapon, Prop_Data, "m_iMaxHealth", STATE_NORMAL);
+		SetEntProp(weapon, Prop_Data, "m_iClip2", 0);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_NORMAL);
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	}
 }  

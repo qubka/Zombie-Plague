@@ -136,7 +136,7 @@ void Weapon_OnReload(int client, int weapon, int iClip, int iAmmo, float flCurre
 	}
 	
 	ZP_SetWeaponAnimation(client, ANIM_RELOAD); 
-	ZP_SetPlayerAnimation(client, AnimType_Reload);
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_RELOAD);
 	
 	flCurrentTime += ZP_GetWeaponReload(gWeapon);
 	
@@ -204,7 +204,8 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, float 
 	iClip -= 1; SetEntProp(weapon, Prop_Send, "m_iClip1", iClip); 
 
 	ZP_SetViewAnimation(client, { ANIM_SHOOT1, ANIM_SHOOT2 });   
-
+	ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_PRIMARY);
+	
 	ZP_StopSoundToAll(gSoundIdle, 1, weapon, SNDCHAN_WEAPON);
 	ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON);
 

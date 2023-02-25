@@ -165,6 +165,8 @@ public Action ZP_OnClientSkillUsed(int client)
 
 			SDKHook(entity, SDKHook_Touch, BatTouchHook);
 		}
+		
+		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_THROW_GRENADE);
 	}
 
 	return Plugin_Continue;

@@ -2659,7 +2659,7 @@ void ModesKillEntities(bool bDrop = false)
 					
 					if (!IsClientValid(client))
 					{
-						if (ToolsGetCustomID(i) == -1)
+						if (WeaponsGetCustomID(i) == -1)
 						{
 							AcceptEntityInput(i, "Kill");
 						}

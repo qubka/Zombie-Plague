@@ -601,7 +601,7 @@ stock int ZP_IsPlayerHasWeapon(int client, int weaponID)
 		
 		if (weapon != -1)
 		{
-			if (GetEntProp(weapon, Prop_Data, "m_iHammerID") == weaponID)
+			if (GetEntProp(weapon, Prop_Data, m_iCustomID) == weaponID)
 			{
 				return weapon;
 			}
@@ -636,7 +636,7 @@ stock bool ZP_IsPlayerHoldWeapon(int client, int &weapon, int weaponID)
 		return false;
 	}
 
-	if (GetEntProp(weapon, Prop_Data, "m_iHammerID") != weaponID)
+	if (GetEntProp(weapon, Prop_Data, m_iCustomID) != weaponID)
 	{
 		return false;
 	}
@@ -991,4 +991,61 @@ public Action TracerViewerTransmit(int entity, int client)
 	}
 	
 	return Plugin_Continue;
+}
+
+//**********************************************
+//* Spawn utils.                               * 
+//**********************************************
+
+/**
+ * @brief Spawn the random weapon.
+ *       
+ * @param vPosition         The origin of the spawn.
+ * @param vAngle            The angle of the spawn.
+ * @param vVelocity         The velocity of the spawn.
+ * @param iType             The class type.
+ **/
+stock void SpawnRandomWeapon(const float vPosition[3], const float vAngle[3], const float vVelocity[3], int iType)
+{
+	int iD = FindRandomWeapon(iType);
+	if (iD != -1)
+	{
+		int weapon = ZP_CreateWeapon(iD, vPosition, vAngle);
+		
+		if (weapon != -1)
+		{
+			TeleportEntity(weapon, NULL_VECTOR, NULL_VECTOR, vVelocity);
+		}
+	}
+}
+
+/**
+ * @brief Find the random id of any custom weapons.
+ * 
+ * @param iType             The class type.
+ * @return                  The weapon id.
+ **/
+stock int FindRandomWeapon(int iType) 
+{
+	int iSize = ZP_GetNumberWeapon();
+	
+	int[] weaponID = new int[iSize]; int x;
+
+	for (int i = 0; i < iSize; i++)
+	{
+		ItemDef iItem = ZP_GetWeaponDefIndex(i);
+		if (!IsGun(iItem))
+		{
+			continue;
+		}
+		
+		if (!ZP_ClassHasTypeBits(ZP_GetWeaponTypes(i), iType) || !ZP_IsWeaponDrop(i))
+		{
+			continue;
+		}
+
+		weaponID[x++] = i;
+	}
+	
+	return (x) ? weaponID[GetRandomInt(0, x-1)] : -1;
 }

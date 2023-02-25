@@ -116,7 +116,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_PrimaryWeapon, "primary");
@@ -144,7 +144,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_SecondaryWeapon, "pistol");
@@ -167,7 +167,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_Flashbang1, "grenade0");
@@ -190,7 +190,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_Flashbang2, "eholster");
@@ -213,7 +213,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_HEGrenade, "grenade1");
@@ -236,7 +236,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_SmokeGrenade, "grenade2");
@@ -259,7 +259,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_Decoy, "grenade3");
@@ -282,7 +282,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_Knife, "knife");
@@ -305,7 +305,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_TaGrenade, "grenade4");
@@ -328,7 +328,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_C4, "c4");
@@ -349,7 +349,7 @@ void WeaponAttachSetAddons(int client)
 		{
 			if (ToolsHasDefuser(client))
 			{
-				iD = ToolsGetCustomID(client);
+				iD = ToolsGetHammerID(client);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_DefuseKit, "c4");
@@ -372,7 +372,7 @@ void WeaponAttachSetAddons(int client)
 			
 			if (weapon != -1)
 			{
-				iD = ToolsGetCustomID(weapon);
+				iD = WeaponsGetCustomID(weapon);
 				if (iD != -1)
 				{
 					WeaponAttachCreateAddons(client, iD, BitType_Shield, "c4");

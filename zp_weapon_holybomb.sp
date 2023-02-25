@@ -150,7 +150,7 @@ public void ZP_OnClientValidateDamage(int client, int &attacker, int &inflictor,
 	{
 		if (IsValidEdict(inflictor))
 		{
-			if (GetEntProp(inflictor, Prop_Data, "m_iHammerID") == gWeapon)
+			if (GetEntProp(inflictor, Prop_Data, m_iCustomID) == gWeapon)
 			{
 				flDamage *= ZP_IsPlayerHuman(client) ? 0.0 : ZP_GetWeaponDamage(gWeapon);
 			}
@@ -179,7 +179,7 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
 
 /**
  * Event callback (hegrenade_detonate)
- * @brief The hegrenade is exployed.
+ * @brief The hegrenade is detonated.
  * 
  * @param hEvent            The event handle.
  * @param sName             The name of the event.
@@ -187,17 +187,18 @@ public void ZP_OnGrenadeCreated(int client, int grenade, int weaponID)
  **/
 public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast) 
 {
-	static float vPosition[3]; static float vPosition2[3];
-
 	int grenade = hEvent.GetInt("entityid");
-	vPosition[0] = hEvent.GetFloat("x"); 
-	vPosition[1] = hEvent.GetFloat("y"); 
-	vPosition[2] = hEvent.GetFloat("z");
 
 	if (IsValidEdict(grenade))
 	{
-		if (GetEntProp(grenade, Prop_Data, "m_iHammerID") == gWeapon)
+		if (GetEntProp(grenade, Prop_Data, m_iCustomID) == gWeapon)
 		{
+			static float vPosition[3]; static float vPosition2[3];
+			
+			vPosition[0] = hEvent.GetFloat("x"); 
+			vPosition[1] = hEvent.GetFloat("y"); 
+			vPosition[2] = hEvent.GetFloat("z");
+		
 			float flDuration = hCvarHolyDuration.FloatValue;
 			float flRadius = hCvarHolyRadius.FloatValue;
 			float flKnock = ZP_GetWeaponKnockBack(gWeapon);
@@ -256,7 +257,7 @@ public Action SoundsNormalHook(int clients[MAXPLAYERS], int &numClients, char sS
 {
 	if (IsValidEdict(entity))
 	{
-		if (GetEntProp(entity, Prop_Data, "m_iHammerID") == gWeapon)
+		if (GetEntProp(entity, Prop_Data, m_iCustomID) == gWeapon)
 		{
 			if (!strncmp(sSample[23], "bounce", 6, false))
 			{
