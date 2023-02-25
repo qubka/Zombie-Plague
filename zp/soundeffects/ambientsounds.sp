@@ -7,7 +7,7 @@
  *  Type:          Module 
  *  Description:   Plays ambient sounds to the clients.
  *
- *  Copyright (C) 2015-2023 Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2023 , Greyscale, Richard Helgeby
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

@@ -32,7 +32,7 @@
 #define PLUGIN_VERSION      "1.2.0"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
-#define PLUGIN_AUTHOR       "qubka (Nikita Ushakov), Greyscale, Richard Helgeby"
+#define PLUGIN_AUTHOR       "qubka (Nikita Ushakov)"
 #define PLUGIN_COPYRIGHT    "Copyright (C) 2015-2023 qubka (Nikita Ushakov)"
 #define PLUGIN_BRANCH       "master"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"

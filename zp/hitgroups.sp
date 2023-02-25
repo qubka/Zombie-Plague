@@ -7,7 +7,7 @@
  *  Type:          Manager 
  *  Description:   API for loading hitgroup specific settings.
  *
- *  Copyright (C) 2015-2023 Greyscale, Richard Helgeby
+ *  Copyright (C) 2015-2023 qubka (Nikita Ushakov)
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
