@@ -43,13 +43,13 @@ enum struct ServerData
 	
 	/* Map */
 	bool MapLoaded;
+	bool NightTime;
 	ArrayList Spawns;
 	StringMap ItemLimit;
 	
-	/* OS */
-	Address Engine;
+	/* Engine */
+	EngineVersion Engine;
 	EngineOS Platform;
-	bool NightTime;
 	
 	/* Timers */
 	Handle UpdateTimer;
@@ -74,6 +74,7 @@ enum struct ServerData
 	Handle GameSync;
 	
 	/* Configs */
+	StringMap Configs;
 	ArrayList ExtraItems;
 	ArrayList HitGroups;
 	ArrayList GameModes;
@@ -86,16 +87,15 @@ enum struct ServerData
 	ArrayList Downloads;
 	ArrayList Sounds;
 	ArrayList Levels;
-
-	/* Other */
-	StringMap Listeners
-	StringMap Configs;
 	StringMap Modules;
-	ArrayList Sections;
-	ArrayList Types;
-	ArrayList Arsenal;
 	
-	/* IDs */
+	/* Other */
+	ArrayList Sections;
+	ArrayList Types;   
+	ArrayList Arsenal; 
+	StringMap Listeners;
+	
+	/* Defaults */
 	int Melee;
 	int Human;
 	int Zombie;

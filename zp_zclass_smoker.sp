@@ -147,7 +147,8 @@ public Action ClientOnToxicGas(Handle hTimer, int refID)
 
 	if (entity != -1)
 	{
-		static float vPosition[3];
+		static float vPosition[3]; static float vPosition2[3]; 
+		
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
  
 		int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
@@ -155,12 +156,19 @@ public Action ClientOnToxicGas(Handle hTimer, int refID)
 		bool bInfect = ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound();
 		
 		float flRadius = hCvarSkillRadius.FloatValue;
+		float flRadius2 = flRadius * flRadius;
 		float flDamage = hCvarSkillDamage.FloatValue;
 		
-		int i; int it = 1; /// iterator
-		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (ZP_IsPlayerZombie(i))
+			if (!IsClientValid(i) || ZP_IsPlayerZombie(i))
+			{
+				continue;
+			}
+			
+			GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+
+			if (GetVectorDistance(vPosition, vPosition2, true) > flRadius2)
 			{
 				continue;
 			}

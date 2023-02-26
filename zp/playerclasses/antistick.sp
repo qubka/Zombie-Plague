@@ -421,15 +421,17 @@ bool AntiStickIsModelBoxColliding(int clientIndex1, int clientIndex2)
 /**
  * @brief Used to iterate all the clients collision within a sphere.
  * 
- * @param it                The iterator.
+ * @param startEnt          A valid client's index after which to begin searching from. Use 1 to start from the first client.
  * @param vPosition         The sphere origin.
  * @param flRadius          The sphere radius.
+ *
+ * @return                  The client index.
  **/
-int AntiStickFindPlayerInSphere(int &it, const float vPosition[3], float flRadius)
+/*int AntiStickFindPlayerInSphere(int startEnt, const float vPosition[3], float flRadius)
 {
 	static float clientmodelbox[AntiStickBoxBound][3];
 
-	for (int i = it; i <= MaxClients; i++)
+	for (int i = startEnt; i <= MaxClients; i++)
 	{
 		if (IsClientValid(i))
 		{
@@ -437,15 +439,13 @@ int AntiStickFindPlayerInSphere(int &it, const float vPosition[3], float flRadiu
 
 			if (AntiStickIsBoxIntersectingSphere(clientmodelbox, vPosition, flRadius))
 			{ 
-				it = i + 1;
-		
 				return i;
 			}
 		}
 	}
 	
 	return -1;
-}
+}*/
 
 /**
  * @brief Returns true if there's an intersection between box and sphere.

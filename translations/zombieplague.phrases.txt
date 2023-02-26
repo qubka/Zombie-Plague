@@ -272,7 +272,22 @@
 		"#format"		"{1:s}"
 		"en"			"Removed \"{1}\" from module filter."
 	}
+	
+	// ===========================
+	// Memory
+	// ===========================
 
+	"memory pool size" // Console
+	{
+		"#format"		"{1:d}"
+		"en"			"Active memory pool ({1}):"
+	}
+	
+	"memory pool invalid" // Console
+	{
+		"en"			"Theres's currently no active pool or it's empty!"
+	}
+	
 	// ===========================
 	// Config
 	// ===========================

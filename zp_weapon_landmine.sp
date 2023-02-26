@@ -344,7 +344,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
 			static char sModel[PLATFORM_LINE_LENGTH];
 			ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
 			
-			int entity = UTIL_CreatePhysics("emitter", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
+			int entity = UTIL_CreatePhysics("emitter", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR | PHYS_GENERATEUSE);
 			
 			if (entity != -1)
 			{
@@ -359,7 +359,7 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
 				
 				SetEntProp(entity, Prop_Data, "m_iHammerID", STATE_TRIGGER_OFF);
 				
-				///SDKHook(entity, SDKHook_UsePost, MineUseHook);
+				SDKHook(entity, SDKHook_UsePost, MineUseHook);
 
 				int glow = UTIL_CreateGlowing("glow", vPosition, vAngle, sModel, "dropped", _, _, WEAPON_GLOW_COLOR, false);
 
@@ -561,7 +561,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
  * @param use               The use type.
  * @param flValue           The value parameter.
  **/ 
-/*public void MineUseHook(int entity, int activator, int caller, UseType use, float flValue)
+public void MineUseHook(int entity, int activator, int caller, UseType use, float flValue)
 {
 	if (IsClientValid(activator))
 	{
@@ -585,7 +585,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 			}
 		}
 	}
-}*/
+}
 
 /**
  * @brief Main timer for mine think.
@@ -604,15 +604,23 @@ public Action MineThinkHook(Handle hTimer, int refID)
 			return Plugin_Continue;
 		}
 
-		static float vPosition[3];
+		static float vPosition[3]; static float vPosition2[3];
+		
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 				
 		float flRadius = hCvarLandmineRadius.FloatValue;
+		float flRadius2 = flRadius * flRadius;
 		
-		int i; int it = 1; /// iterator
-		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (!ZP_IsPlayerZombie(i))
+			if (!IsClientValid(i) || !ZP_IsPlayerZombie(i))
+			{
+				continue;
+			}
+			
+			GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+        
+			if (GetVectorDistance(vPosition, vPosition2, true) > flRadius2)
 			{
 				continue;
 			}

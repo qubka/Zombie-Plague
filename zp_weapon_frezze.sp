@@ -249,22 +249,27 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 			vPosition[2] = hEvent.GetFloat("z");
 	
 			float flRadius = hCvarFreezeRadius.FloatValue;
+			float flRadius2 = flRadius * flRadius;
 			float flDuration = hCvarFreezeDuration.FloatValue;
 			
 			static char sEffect[SMALL_LINE_LENGTH];
 			hCvarFreezeEffect.GetString(sEffect, sizeof(sEffect));
 
-			int i; int it = 1; /// iterator
-			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+			for (int i = 1; i <= MaxClients; i++)
 			{
-				if (ZP_IsPlayerHuman(i))
+				if (!IsClientValid(i) || ZP_IsPlayerHuman(i))
+				{
+					continue;
+				}
+
+				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+
+				if (GetVectorDistance(vPosition, vPosition2, true) > flRadius2)
 				{
 					continue;
 				}
 				
 				SetEntityMoveType(i, MOVETYPE_NONE);
-
-				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 
 				if (hasLength(sEffect))
 				{

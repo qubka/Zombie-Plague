@@ -13,6 +13,17 @@
 				"windows"	"1"
 				"linux"		"2"
 			}
+			"Malloc"
+			{
+				"windows"	"1"
+				"linux"		"0"
+			}
+			"Free"
+			{
+				"windows"	"5"
+				"linux"		"2"
+			}
+			
 			"m_nBits"
 			{
 				"windows"	"12"
@@ -30,11 +41,6 @@
 				"linux"		"5"
 			}
 
-			"CBaseCombatWeapon::GetDrawActivity" // Str: "ACT_VM_EMPTY_DRAW"
-			{
-				"windows"	"318"
-				"linux"		"456" // CSWeaponBase
-			}
 			"CBaseCombatWeapon::Holster" // Str: "BaseCombatWeapon_HideThink" 
 			{
 				"windows"	"294"
@@ -135,12 +141,6 @@
 				"windows"	"\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\xE0\x01\x00\x00"
 				"linux"		"\x55\x89\xE5\x57\x56\x53\x81\xEC\xEC\x02\x00\x00\x8B\x45\x0C"
 			}
-			"CGlobalEntityList::FindEntityInSphere" // Str: "tr_player_flashbanged"
-			{
-				"library"	"server"
-				"windows"	"\x55\x8B\xEC\x83\xEC\x10\x8B\x4D\x08\xF3\x0F\x11\x5D\xFC"
-				"linux"		""
-			}
 
 			/*___________________________________________________________________________________________*/
 			
@@ -168,12 +168,33 @@
 				"windows"	"\x55\x8B\xEC\x83\xEC\x0C\x83\x3D\x2A\x2A\x2A\x2A\x00\x53"
 				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x1C\x8B\x1D\x2A\x2A\x2A\x2A\x85\xDB\x0F\x85\x2A\x2A\x2A\x2A"
 			}
+			
+			/*___________________________________________________________________________________________*/
+			
+			"g_pMemAllocFunc"
+			{
+				"library"		"server"
+				"windows"		"\x55\x8B\xEC\x56\x8B\xF1\x83\x4E\x30\x04"
+				"linux"			"\x55\x89\xE5\x57\x56\x53\x81\xEC\x3C\x01\x00\x00\x8B\x45\x08\x65\x8B\x0D\x14\x00\x00\x00\x89\x4D\xE4\x31\xC9\x89\xC1"
+			}
 		}
 		"Addresses"
 		{
-			"server"
+			"g_pMemAlloc"
 			{
-				"signature"	"Find_Server"
+				"windows"
+				{
+					"signature"	"g_pMemAllocFunc"
+					"read"	"20"
+					"read"	"0"
+				}
+				"linux"
+				{
+					"signature"	"g_pMemAllocFunc"
+					"read"	"191"
+				}
+				
+				"read"	"0"
 			}
 			"FX_FireBullets"
 			{

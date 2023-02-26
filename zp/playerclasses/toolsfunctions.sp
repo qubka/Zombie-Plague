@@ -1059,11 +1059,6 @@ void ToolsFireBullets(int client, int weapon, const float vPosition[3], const fl
 	
 	if (hSDKCallFireBullets)
 	{
-		if (gServerData.Platform == OS_Windows)
-		{
-			memcpy(pFireBullets, sFXFireBullets, sizeof(sFXFireBullets));
-		}
-		
 		SDKCall(hSDKCallFireBullets, client, weapon, 0/*CEconItemView*/, vPosition, vAngle, iMode, iSeed, flInaccuracy, flSpread, flFishTail, 0.0, iSoundType, flRecoilIndex);
 	}
 	else
@@ -1111,17 +1106,4 @@ void ToolsResetProgressBarTime(int client)
 {
 	SetEntDataFloat(client, Player_flProgressBarStartTime, 0.0, true);
 	SetEntData(client, Player_iProgressBarDuration, 0, 1, true);
-}
-
-/**
- * @brief Searches for an entity in the sphere.
- * 
- * @param startEnt          A valid entity's index after which to begin searching from. Use -1 to start from the first entity.
- * @param vPosition         The sphere origin.
- * @param flRadius          The sphere radius.
- * @
- **/
-int ToolsFindEntityInSphere(int startEnt, const float vPosition[3], float flRadius)
-{
-	return SDKCall(hSDKCallFindEntityInSphere, startEnt, vPosition, flRadius);
 }

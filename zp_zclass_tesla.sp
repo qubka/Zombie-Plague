@@ -198,16 +198,23 @@ public Action ClientOnHallucination(Handle hTimer, int userID)
 	
 	if (client)
 	{
-		static float vPosition[3]; static int vColor[4];
+		static float vPosition[3]; static float vPosition2[3]; static int vColor[4];
 
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		float flRadius = hCvarSkillRadius.FloatValue;
+		float flRadius2 = flRadius * flRadius;
 
-		int i; int it = 1; /// iterator
-		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (ZP_IsPlayerZombie(i))
+			if (!IsClientValid(i) || ZP_IsPlayerZombie(i))
+			{
+				continue;
+			}
+			
+			GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+
+			if (GetVectorDistance(vPosition, vPosition2, true) > flRadius2)
 			{
 				continue;
 			}

@@ -32,6 +32,7 @@ void CommandsOnInit()
 {
 	DebugOnCommandInit();
 	ConfigOnCommandInit();
+	MemoryOnCommandInit();
 	LogOnCommandInit();
 	DeathOnCommandInit();
 	SpawnOnCommandInit();

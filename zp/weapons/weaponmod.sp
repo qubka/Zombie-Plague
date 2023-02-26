@@ -280,7 +280,7 @@ void WeaponMODOnInit()
 	}
 	else
 	{
-		DHookRaw(hDHookPrecacheModel, false, gServerData.Engine);
+		DHookRaw(hDHookPrecacheModel, false, CreateInterface(gServerData.Config, "EngineInterface"));
 	}
 }
 

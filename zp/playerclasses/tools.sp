@@ -31,20 +31,18 @@
 Handle hSDKCallGetSequenceActivity;
 Handle hSDKCallIsBSPModel;
 Handle hSDKCallFireBullets;
-Handle hSDKCallFindEntityInSphere;
 
 /**
  * Variables to store virtual SDK adresses.
  **/
-Address pSendTableCRC;
+Address g_pSendTableCRC;
 Address pArmorValue; 
 Address pAccount; 
 Address pHealth; 
 Address pClip;
 Address pPrimary;
 Address pSecondary;
-Address pFireBullets;
-Address pFindEntityInSphere;
+/// TODO: Patch back on unload !!!
 
 /**
  * Variables to store dynamic SDK offsets.
@@ -60,30 +58,6 @@ int SendProp_iBits;
 int Animating_StudioHdr;
 int StudioHdrStruct_SequenceCount;
 int VirtualModelStruct_SequenceVector_Size;
-
-/**
- * @brief FX_FireBullets translator.
- * @link https://defuse.ca/online-x86-assembler.htm
- * 
- * @code
- *  58                      pop    eax
- *  59                      pop    ecx
- *  5a                      pop    edx
- *  50                      push   eax
- *  b8 00 00 00 00          mov    eax,0x0
- *  ff e0                   jmp    eax
- **/
-char sFXFireBullets[NORMAL_LINE_LENGTH] = "\x58\x59\x5A\x50\xB8\x00\x00\x00\x00\xFF\xE0";
-
-
-/**
- * @brief CGlobalEntityList::FindEntityInSphere translator.
- * @link https://defuse.ca/online-x86-assembler.htm
- * 
- * @code
-
- **/
-char sFindEntityInSphere[NORMAL_LINE_LENGTH] = "\xF3\x0F\x10\x5D\x0C\xB8\x00\x00\x00\x00\xFF\xE0";
 
 /**
  * @section StudioHdr structure.
@@ -129,11 +103,11 @@ void ToolsOnInit()
 	fnInitSendPropOffset(Player_iBlockingUseActionInProgress, "CCSPlayer", "m_iBlockingUseActionInProgress");
 	fnInitSendPropOffset(Entity_flSimulationTime, "CBaseEntity", "m_flSimulationTime");
 
-	fnInitGameConfAddress(gServerData.Config, pSendTableCRC, "g_SendTableCRC", false);
+	fnInitGameConfAddress(gServerData.Config, g_pSendTableCRC, "g_SendTableCRC", false);
 	
-	if (pSendTableCRC != Address_Null)
+	if (g_pSendTableCRC != Address_Null)
 	{
-		StoreToAddress(pSendTableCRC, 1337, NumberType_Int32);
+		StoreToAddress(g_pSendTableCRC, 1337, NumberType_Int32);
 
 		fnInitGameConfOffset(gServerData.Config, SendProp_iBits, "m_nBits");
 
@@ -143,7 +117,6 @@ void ToolsOnInit()
 		ToolsPatchSendTable(gServerData.Config, pClip, "m_iClip1", SendProp_iBits);
 		ToolsPatchSendTable(gServerData.Config, pPrimary, "m_iPrimaryReserveAmmoCount", SendProp_iBits);
 		ToolsPatchSendTable(gServerData.Config, pSecondary, "m_iSecondaryReserveAmmoCount", SendProp_iBits);
-		ToolsPatchSendTable(gServerData.Config, pArmorValue, "m_ArmorValue", SendProp_iBits);
 	}
 	else
 	{
@@ -178,57 +151,36 @@ void ToolsOnInit()
 			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CBaseEntity::IsBSPModel\". Update signature in \"%s\"", PLUGIN_CONFIG);
 		}
 	}
+
 	/*__________________________________________________________________________________________________*/
 	
 	{
-		Address pSignature;
-
-		if (gServerData.Platform == OS_Windows)
-		{
-			StartPrepSDKCall(SDKCall_Static);	
-		
-			fnInitGameConfAddress(gServerData.Config, pSignature, "CGlobalEntityList::FindEntityInSphere");
-			
-			pFindEntityInSphere = fnCreateMemoryForSDKCall();
-
-			PrepSDKCall_SetAddress(pFindEntityInSphere);
-		}
-		else
-		{
-			StartPrepSDKCall(SDKCall_EntityList);
-		
-			PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CGlobalEntityList::FindEntityInSphere");
-		}
-
-		PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer, VDECODE_FLAG_ALLOWNULL | VDECODE_FLAG_ALLOWWORLD);
-		PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-		
-		PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
-		
-		if ((hSDKCallFindEntityInSphere = EndPrepSDKCall()) == null)
-		{
-			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"CGlobalEntityList::FindEntityInSphere\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		}
-		else if (pSignature != Address_Null)
-		{
-			writeDWORD(sFindEntityInSphere, pSignature, 6);
-		}
-	}
-	
-	/*__________________________________________________________________________________________________*/
-	
-	{
-		Address pSignature;
-		
 		StartPrepSDKCall(SDKCall_Static);
 		
 		if (gServerData.Platform == OS_Windows)
 		{
+			/**
+			 * @brief FX_FireBullets translator.
+			 * @link https://defuse.ca/online-x86-assembler.htm
+			 * 
+			 * @code
+			 *  58                      pop    eax
+			 *  59                      pop    ecx
+			 *  5a                      pop    edx
+			 *  50                      push   eax
+			 *  b8 00 00 00 00          mov    eax,0x0
+			 *  ff e0                   jmp    eax
+			 **/
+			char sTrampoline[] = "\x58\x59\x5A\x50\xB8\x00\x00\x00\x00\xFF\xE0";
+		
+			Address pSignature;
 			fnInitGameConfAddress(gServerData.Config, pSignature, "FX_FireBullets");
+			writeDWORD(sTrampoline, pSignature, 5);
 			
-			pFireBullets = fnCreateMemoryForSDKCall();
-			PrepSDKCall_SetAddress(pFireBullets);
+			pSignature = Malloc(sizeof(sTrampoline), "FX_FireBullets");
+			memcpy(pSignature, sTrampoline, sizeof(sTrampoline));
+			
+			PrepSDKCall_SetAddress(pSignature);
 		}
 		else
 		{
@@ -252,10 +204,6 @@ void ToolsOnInit()
 		if ((hSDKCallFireBullets = EndPrepSDKCall()) == null)
 		{
 			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "GameData Validation", "Failed to load SDK call \"FX_FireBullets\". Update signature in \"%s\"", PLUGIN_CONFIG);
-		}
-		else if (pSignature != Address_Null)
-		{
-			writeDWORD(sFXFireBullets, pSignature, 5);
 		}
 	}
 	
@@ -288,31 +236,6 @@ void ToolsOnInit()
 	int iOffset_hLightingOrigin;
 	fnInitSendPropOffset(iOffset_hLightingOrigin, "CBaseAnimating", "m_hLightingOrigin");
 	Animating_StudioHdr += iOffset_hLightingOrigin;
-	
-	RegConsoleCmd("ztest", ToolsCmd, "");
-}
-
-public Action ToolsCmd(int client, int iArguments)
-{
-	static float vPosition[3];
-	
-	GetClientAbsOrigin(client, vPosition);
-
-	if (gServerData.Platform == OS_Windows)
-	{
-		memcpy(pFindEntityInSphere, sFindEntityInSphere, sizeof(sFindEntityInSphere));
-	}
-
-	int entity = -1;
-	while ((entity = SDKCall(hSDKCallFindEntityInSphere, entity, vPosition, 1000.0)) != -1)
-	{
-		if (!IsClientValid(entity))
-		{
-			continue;
-		}
-		
-		PrintToServer("%i", entity);
-	}
 }
 
 /**
@@ -398,7 +321,6 @@ void ToolsOnNativeInit()
 	CreateNative("ZP_IsBSPModel",           API_IsBSPModel);
 	CreateNative("ZP_FireBullets",          API_FireBullets);
 	CreateNative("ZP_RespawnPlayer",        API_RespawnPlayer);
-	CreateNative("ZP_FindPlayerInSphere",   API_FindPlayerInSphere);
 	CreateNative("ZP_SetProgressBarTime",   API_SetProgressBarTime);
 }
 
@@ -505,25 +427,6 @@ public int API_RespawnPlayer(Handle hPlugin, int iNumParams)
 	}
 	
 	return ToolsForceToRespawn(client);
-}
-
-/**
- * @brief Used to iterate all the clients collision within a sphere.
- *
- * @note native int ZP_FindPlayerInSphere(&it, center, radius);
- **/
-public int API_FindPlayerInSphere(Handle hPlugin, int iNumParams)
-{
-	int it = GetNativeCellRef(1);
-	
-	static float vPosition[3];
-	GetNativeArray(2, vPosition, sizeof(vPosition));
-
-	int client = AntiStickFindPlayerInSphere(it, vPosition, GetNativeCell(3));
-	
-	SetNativeCellRef(1, it);
-	
-	return client;
 }
 
 /**

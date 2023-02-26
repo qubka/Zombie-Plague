@@ -322,7 +322,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 		
 		GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-		if (GetVectorLength(vVelocity) <= 0.0)
+		if (GetVectorLength(vVelocity, true) <= 0.0)
 		{
 		}
 		else if (!(iFlags & FL_ONGROUND))
@@ -415,17 +415,22 @@ void Weapon_OnCreateBeam(int client, int weapon)
 	ZP_GetPlayerEyePosition(client, 30.0, 10.0, -10.0, vPosition);
 
 	float flRadius = hCvarJanusBeamRadius.FloatValue;
+	float flRadius2 = flRadius * flRadius;
 	float flDamage = hCvarJanusBeamDamage.FloatValue;
 
-	int i; int it = 1; /// iterator
-	while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (ZP_IsPlayerHuman(i))
+		if (!IsClientValid(i) || ZP_IsPlayerHuman(i))
 		{
 			continue;
 		}
 
-		GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2); vPosition2[2] += 45.0;
+		GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+
+		if (GetVectorDistance(vPosition, vPosition2, true) > flRadius2)
+		{
+			continue;
+		}
 
 		if (!UTIL_TraceRay(client, i, vPosition, vPosition2, SelfFilter))
 		{
@@ -439,6 +444,8 @@ void Weapon_OnCreateBeam(int client, int weapon)
 		bFound = true; 
 		break;
 	}
+	
+	vPosition2[2] += 45.0;
 	
 	if (!bFound)
 	{

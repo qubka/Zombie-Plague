@@ -56,9 +56,9 @@ void ExtraItemsOnInit()
 } 
  
 /**
- * @brief Extraitems module unload function.
+ * @brief Extraitems module map end function.
  **/
-void ExtraItemsOnUnload()
+void ExtraItemsOnMapEnd()
 {
 	ClearTrieList(gServerData.ItemLimit);
 }

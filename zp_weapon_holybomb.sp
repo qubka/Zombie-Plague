@@ -201,21 +201,27 @@ public Action EventEntityNapalm(Event hEvent, char[] sName, bool dontBroadcast)
 		
 			float flDuration = hCvarHolyDuration.FloatValue;
 			float flRadius = hCvarHolyRadius.FloatValue;
+			float flRadius2 = flRadius * flRadius;
 			float flKnock = ZP_GetWeaponKnockBack(gWeapon);
 			
-			int i; int it = 1; /// iterator
-			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+			for (int i = 1; i <= MaxClients; i++)
 			{
-				if (ZP_IsPlayerHuman(i))
+				if (!IsClientValid(i) || ZP_IsPlayerHuman(i))
 				{
 					continue;
 				}
 				
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+
+				float flDistance = GetVectorDistance(vPosition, vPosition2, true);
+				if (flDistance > flRadius2)
+				{
+					continue;
+				}
 				
 				UTIL_IgniteEntity(i, flDuration);   
 				
-				UTIL_CreatePhysForce(i, vPosition, vPosition2, GetVectorDistance(vPosition, vPosition2), flKnock, flRadius);
+				UTIL_CreatePhysForce(i, vPosition, vPosition2, SquareRoot(flDistance), flKnock, flRadius);
 				
 				UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);
 			}

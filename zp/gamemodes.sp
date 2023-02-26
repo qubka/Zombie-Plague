@@ -98,9 +98,9 @@ void GameModesOnInit()
 }
 
 /**
- * @brief Gamemodes module unload function.
+ * @brief Gamemodes module map end function.
  **/
-void GameModesOnUnload()
+void GameModesOnMapEnd()
 {
 	gServerData.RoundNumber = 0;
 }

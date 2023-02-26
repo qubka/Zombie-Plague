@@ -26,134 +26,18 @@
  **/
 
 /**
- * @section Engine versions.
- **/
-#define ENGINE_UNKNOWN              "could not determine the engine version"    
-#define ENGINE_ORIGINAL             "Original Source Engine"         
-#define ENGINE_SOURCESDK2006        "Episode 1 Source Engine"         
-#define ENGINE_SOURCESDK2007        "Orange Box Source Engine"        
-#define ENGINE_LEFT4DEAD            "Left 4 Dead"   
-#define ENGINE_DARKMESSIAH          "Dark Messiah Multiplayer"
-#define ENGINE_LEFT4DEAD2           "Left 4 Dead 2"
-#define ENGINE_ALIENSWARM           "Alien Swarm"
-#define ENGINE_BLOODYGOODTIME       "Bloody Good Time"
-#define ENGINE_EYE                  "E.Y.E Divine Cybermancy"
-#define ENGINE_PORTAL2              "Portal 2"
-#define ENGINE_CSGO                 "Counter-Strike: Global Offensive"
-#define ENGINE_CSS                  "Counter-Strike: Source"
-#define ENGINE_DOTA                 "Dota 2"
-#define ENGINE_HL2DM                "Half-Life 2 Deathmatch"
-#define ENGINE_DODS                 "Day of Defeat: Source"
-#define ENGINE_TF2                  "Team Fortress 2"
-#define ENGINE_NUCLEARDAWN          "Nuclear Dawn"
-#define ENGINE_SDK2013              "Source SDK 2013"
-#define ENGINE_BLADE                "Blade Symphony"
-#define ENGINE_INSURGENCY           "Insurgency"
-#define ENGINE_CONTAGION            "Contagion"
-/**
- * @endsection
- **/
-
-/**
- * @brief Called once when server is started. Will log a warning if a unsupported game is detected.
+ * @brief Core module init function.
  **/
 void GameEngineOnInit()
 {
-	switch (GetEngineVersion())
+	gServerData.Engine = GetEngineVersion();
+	if (gServerData.Engine != Engine_CSGO)
 	{
-		case Engine_Unknown :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague %s", ENGINE_UNKNOWN);
-		}
-		case Engine_Original :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_ORIGINAL);
-		}
-		case Engine_SourceSDK2006 :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_SOURCESDK2006);
-		}
-		case Engine_SourceSDK2007 :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_SOURCESDK2007);
-		}
-		case Engine_Left4Dead :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_LEFT4DEAD);
-		}
-		case Engine_DarkMessiah :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_DARKMESSIAH);
-		}
-		case Engine_Left4Dead2 :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_LEFT4DEAD2);
-		}
-		case Engine_AlienSwarm :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_ALIENSWARM);
-		}
-		case Engine_BloodyGoodTime :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_BLOODYGOODTIME);
-		}
-		case Engine_EYE :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_EYE);
-		}
-		case Engine_Portal2 :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_PORTAL2);
-		}
-		case Engine_CSGO :    
-		{
-			LogEvent(true, LogType_Normal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Engine catched: \"%s\"", ENGINE_CSGO);
-		}
-		case Engine_CSS :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_CSS);
-		}
-		case Engine_DOTA :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_DOTA);
-		}
-		case Engine_HL2DM :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_HL2DM);
-		}
-		case Engine_DODS :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_DODS);
-		}
-		case Engine_TF2 :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_TF2);
-		}
-		case Engine_NuclearDawn :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_NUCLEARDAWN);
-		}
-		case Engine_SDK2013 :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_SDK2013);
-		}
-		case Engine_Blade :    
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_BLADE);
-		}
-		case Engine_Insurgency :
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_INSURGENCY);
-		}
-		case Engine_Contagion :
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support: \"%s\"", ENGINE_CONTAGION);
-		}
+		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "Engine Validation", "Zombie Plague doesn't support this game!");
 	}
 	
 	fnInitGameConfOffset(gServerData.Config, view_as<int>(gServerData.Platform), "OS");
-	gServerData.Engine = fnCreateEngineInterface(gServerData.Config, "EngineInterface");
-
+	
 	gServerData.UpdateTimer = CreateTimer(60.0, GameEngineOnUpdate, _, TIMER_REPEAT);
 	GameEngineOnUpdate(null);
 }
@@ -169,9 +53,9 @@ void GameEngineOnLoad()
 }
 
 /**
- * @brief Core module unload function.
+ * @brief Core module map end function.
  **/
-void GameEngineOnUnload()
+void GameEngineOnMapEnd()
 {
 	gServerData.MapLoaded = false;
 	
@@ -326,17 +210,17 @@ stock int fnGetAlive()
  **/
 stock int fnGetRandomHuman()
 {
-	int iRandom; static int client[MAXPLAYERS+1];
+	int iTotal; static int client[MAXPLAYERS+1];
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientValid(i) && !gClientData[i].Zombie)
 		{
-			client[iRandom++] = i;
+			client[iTotal++] = i;
 		}
 	}
 
-	return (iRandom) ? client[GetRandomInt(0, iRandom-1)] : -1;
+	return (iTotal) ? client[GetRandomInt(0, iTotal-1)] : -1;
 }
 
 /**
@@ -346,17 +230,17 @@ stock int fnGetRandomHuman()
  **/
 stock int fnGetRandomZombie()
 {
-	int iRandom; static int client[MAXPLAYERS+1];
+	int iTotal; static int client[MAXPLAYERS+1];
 
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientValid(i) && gClientData[i].Zombie)
 		{
-			client[iRandom++] = i;
+			client[iTotal++] = i;
 		}
 	}
 
-	return (iRandom) ? client[GetRandomInt(0, iRandom-1)] : -1;
+	return (iTotal) ? client[GetRandomInt(0, iTotal-1)] : -1;
 }
 
 /**
@@ -439,90 +323,9 @@ stock void fnInitDataPropOffset(int &iOffset, int entity, const char[] sProp, bo
 	}
 }
 
-/**
- * @brief This is the primary exported function by a dll, referenced by name via dynamic binding
- *        that exposes an opqaue function pointer to the interface.
- *
- * @param gameConf          The game config handle.
- * @param sKey              Key to retrieve from the key section.
- * @param pAddress          (Optional) The optional interface address.
- **/
-stock Address fnCreateEngineInterface(GameData gameConf, const char[] sKey, Address pAddress = Address_Null) 
-{
-	static Handle hInterface = null;
-	if (hInterface == null) 
-	{
-		StartPrepSDKCall(SDKCall_Static);
-		PrepSDKCall_SetFromConf(gameConf, SDKConf_Signature, "CreateInterface");
-
-		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain, VDECODE_FLAG_ALLOWNULL);
-		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-
-		if ((hInterface = EndPrepSDKCall()) == null)
-		{
-			LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to load SDK call \"CreateInterface\". Update signature in \"%s\"", PLUGIN_CONFIG);
-			return Address_Null;
-		}
-	}
-
-	static char sInterface[NORMAL_LINE_LENGTH];
-	fnInitGameConfKey(gameConf, sKey, sInterface, sizeof(sInterface));
-
-	Address pInterface = SDKCall(hInterface, sInterface, pAddress);
-	if (pInterface == Address_Null) 
-	{
-		LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Engine, "GameData Validation", "Failed to get pointer to interface %s(\"%s\")", sKey, sInterface);
-		return Address_Null;
-	}
-
-	return pInterface;
-}
-
-/**
- * @brief Create a memory for the custom convention call.
- *
- * @return                  The zero memory address.
- **/
-stock Address fnCreateMemoryForSDKCall()
-{
-	static Address pZeroMemory = Address_Null;
-	if (pZeroMemory != Address_Null)
-	{
-		return pZeroMemory;
-	}
-   
-	Address pServerBase; 
-	fnInitGameConfAddress(gServerData.Config, pServerBase, "server");
-	int pAddress = view_as<int>(pServerBase) + fnGetModuleSize(pServerBase) - 1;
-   
-	for (;;)
-	{
-		int iByte = LoadFromAddress(view_as<Address>(pAddress), NumberType_Int8);
-		if (iByte != 0x00)
-		{
-			break;
-		}
-	   
-		pAddress--;
-	}
-   
-	/* Align for safe code injection */
-	pZeroMemory = view_as<Address>(pAddress + 0x100 & 0xFFFFFF00); /// 255 bytes
-	return pZeroMemory;
-}
-
-/**
- * @brief Gets the size of a module in the memory.
- *
- * @param pAddress          The module address.
- * @return                  The size value.
- **/
-stock int fnGetModuleSize(Address pAddress)
-{
-	int iOffset = LoadFromAddress(pAddress + view_as<Address>(0x3C), NumberType_Int32);    /// NT headers offset
-	return LoadFromAddress(pAddress + view_as<Address>(iOffset + 0x50), NumberType_Int32); /// nt->OptionalHeader.SizeOfImage
-}
+/*
+ * Stocks utils API.
+ */
 
 /**
  * @brief Removes a hook for when a game event is fired. (Avoid errors)

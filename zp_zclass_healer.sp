@@ -127,6 +127,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		UTIL_CreateFadeScreen(client, 0.3, 1.0, FFADE_IN, {255, 127, 80, 50});  
 
 		float flRadius = hCvarSkillRadius.FloatValue;
+		float flRadius2 = flRadius * flRadius;
 		int iTotal = 0; int iReward = hCvarSkillReward.IntValue;
 		float flDuration = ZP_GetClassSkillDuration(gZombie);
 				
@@ -145,14 +146,20 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		hCvarSkillHeal.GetString(sEffect, sizeof(sEffect));
 		
-		int i; int it = 1; /// iterator
-		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (ZP_IsPlayerHuman(i))
+			if (!IsClientValid(i) || ZP_IsPlayerHuman(i))
 			{
 				continue;
 			}
+			
+			GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 
+			if (GetVectorDistance(vPosition, vPosition2, true) > flRadius2)
+			{
+				continue;
+			}
+			
 			int iClass = ZP_GetClientClass(i);
 			int iHealth = ZP_GetClassHealth(iClass);
 
@@ -163,9 +170,7 @@ public Action ZP_OnClientSkillUsed(int client)
 				UTIL_CreateFadeScreen(i, 0.3, 1.0, FFADE_IN, {0, 255, 0, 50});
 				
 				ZP_EmitSoundToAll(gSound, 2, i, SNDCHAN_VOICE);
-				
-				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
-				
+
 				iTotal += iReward;
 				
 				if (hasLength(sEffect))

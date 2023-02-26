@@ -273,7 +273,22 @@
 		"#format"		"{1:s}"
 		"ro"			"Sters \"{1}\" de la filtrul modulelor."
 	}
+	
+	// ===========================
+	// Memory
+	// ===========================
 
+	"memory pool size" // Console
+	{
+		"#format"		"{1:d}"
+		"ro"			"Pool de memorie activă ({1}):"
+	}
+	
+	"memory pool invalid" // Console
+	{
+		"ro"			"Momentan nu există piscină activă sau este goală!"
+	}
+	
 	// ===========================
 	// Config
 	// ===========================

@@ -2423,56 +2423,6 @@ stock bool IsTimeBetween(int min, int max)
 
 /*_____________________________________________________________________________________________________________*/
 
-
-/**
- * @brief Copies the values of num bytes from the location pointed to by source directly to the memory block pointed to by destination.
- *
- * @param pDest        The destination address where the content is to be copied.
- * @param sSource      The source of data to be copied.
- * @param iSize        The number of bytes to copy.
- **/
-stock void memcpy(Address pDest, const char[] sSource, int iSize)
-{
-	int i = iSize / 4;
-	memcpy4b(pDest, view_as<any>(sSource), i);
-   
-	for (i *= 4, pDest += view_as<Address>(i); i < iSize; i++)
-	{
-		StoreToAddress(pDest++, sSource[i], NumberType_Int8);
-	}
-}
-
-/**
- * @brief Copies the 4 bytes from the location pointed to by source directly to the memory block pointed to by destination. 
- *
- * @param pDest        The destination address where the content is to be copied.
- * @param sSource      The source of data to be copied.
- * @param iSize        The number of bytes to copy.
- **/
-stock void memcpy4b(Address pDest, const any[] sSource, int iSize)
-{
-	for (int i = 0; i < iSize; i++)
-	{
-		StoreToAddress(pDest, sSource[i], NumberType_Int32);
-		pDest += view_as<Address>(4);
-	}
-}
-
-/**
- * @brief Writes the DWord D (i.e. 4 bytes) to the string. 
- *
- * @param asm             The assemly string.
- * @param pAddress        The address of the call.
- * @param iOffset         (Optional) The address offset. (Where 0x0 starts)
- **/
-stock void writeDWORD(const char[] asm, any pAddress, int iOffset = 0)
-{
-	asm[iOffset]   = pAddress & 0xFF;
-	asm[iOffset+1] = pAddress >> 8 & 0xFF;
-	asm[iOffset+2] = pAddress >> 16 & 0xFF;
-	asm[iOffset+3] = pAddress >> 24 & 0xFF;
-}
-
 /**
  * Convert bit value to the bit index. 
  *

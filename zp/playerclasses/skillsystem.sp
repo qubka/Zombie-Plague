@@ -265,7 +265,7 @@ public Action SkillSystemOnClientRegen(Handle hTimer, int userID)
 		static float vVelocity[3];
 		ToolsGetVelocity(client, vVelocity);
 		
-		if (GetVectorLength(vVelocity) <= 0.0)
+		if (GetVectorLength(vVelocity, true) <= 0.0)
 		{
 			int iHealth = ToolsGetHealth(client); // Store for next usage
 			if (iHealth < ClassGetHealth(gClientData[client].Class))

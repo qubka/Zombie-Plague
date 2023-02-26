@@ -490,7 +490,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 {
 	public SentryGun(int owner, const float vPosition[3], const float vAngle[3], int iHealth, int iAmmo, int iRocket, int iSkin, int iLevel) 
 	{
-		int entity = UTIL_CreateMonster("npc_turret", vPosition, vAngle, "models/buildables/sentry1.mdl", NPC_GAG | NPC_WAITFORSCRIPT | NPC_DONTDROPWEAPONS | NPC_IGNOREPLAYERPUSH);
+		int entity = UTIL_CreateMonster("turret_npc", vPosition, vAngle, "models/buildables/sentry1.mdl", NPC_GAG | NPC_WAITFORSCRIPT | NPC_DONTDROPWEAPONS | NPC_IGNOREPLAYERPUSH);
 		
 		if (entity != -1)
 		{
@@ -561,7 +561,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				CreateTimer(5.0, SentryActivateHook, EntIndexToEntRef(upgrade), TIMER_FLAG_NO_MAPCHANGE);
 			}
 
-			int physics = UTIL_CreatePhysics("turret", vPosition, vAngle, "models/props_office/file_cabinet_03.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
+			int physics = UTIL_CreatePhysics("turret_body", vPosition, vAngle, "models/props_office/file_cabinet_03.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
 			
 			if (physics != -1)
 			{
@@ -573,7 +573,8 @@ methodmap SentryGun /** Regards to Pelipoika **/
 				SetEntProp(physics, Prop_Data, "m_nSolidType", SOLID_VPHYSICS);
 			
 				SetEntProp(physics, Prop_Data, "m_iTeamNum", GetEntProp(entity, Prop_Data, "m_iTeamNum")); 
-
+				SetEntProp(physics, Prop_Data, "m_iHammerID", -1); 
+			
 				SetEntPropEnt(physics, Prop_Data, "m_hOwnerEntity", entity); 
 				
 				SetEntPropEnt(entity, Prop_Data, "m_hInteractionPartner", physics); 
@@ -1105,7 +1106,9 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		this.GetGunPosition(vPosition); 
 
 		int target = -1; int old = this.Enemy;
-		float flMinDistance = hCvarSentryBulletRange.FloatValue; float flOldDistance = MAX_FLOAT; float flNewDistance;
+		float flRange = hCvarSentryBulletRange.FloatValue;
+		float flMinDistance = flRange * flRange;
+		float flOldDistance = MAX_FLOAT;
 		float flVisibility = hCvarSentryAttackVisibililty.FloatValue;
 		
 		for (int i = 1; i <= MaxClients; i++) 
@@ -1127,21 +1130,21 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			
 			GetAbsOrigin(i, vPosition2);
 			
-			flNewDistance = GetVectorDistance(vPosition, vPosition2);
+			float flDistance = GetVectorDistance(vPosition, vPosition2, true);
 			
 			if (i == old) 
 			{ 
-				flOldDistance = flNewDistance; 
+				flOldDistance = flDistance; 
 			} 
 			
-			if (flNewDistance > flMinDistance) 
+			if (flDistance > flMinDistance) 
 			{
 				continue; 
 			}
 			
 			if (this.ValidTargetPlayer(i, vPosition, vPosition2)) 
 			{ 
-				flMinDistance = flNewDistance; 
+				flMinDistance = flDistance; 
 				target = i; 
 			}
 		}
@@ -1173,21 +1176,21 @@ methodmap SentryGun /** Regards to Pelipoika **/
 					
 						GetAbsOrigin(i, vPosition2);
 						
-						flNewDistance = GetVectorDistance(vPosition, vPosition2);
+						float flDistance = GetVectorDistance(vPosition, vPosition2, true);
 						
 						if (i == old) 
 						{ 
-							flOldDistance = flNewDistance; 
+							flOldDistance = flDistance; 
 						} 
 						
-						if (flNewDistance > flMinDistance) 
+						if (flDistance > flMinDistance) 
 						{
 							continue; 
 						}
 						
 						if (this.ValidTargetPlayer(i, vPosition, vPosition2)) 
 						{ 
-							flMinDistance = flNewDistance; 
+							flMinDistance = flDistance; 
 							target = i; 
 						}
 					}
@@ -2043,14 +2046,10 @@ bool Weapon_OnPickupTurret(int client, int entity, float flCurrentTime)
 		entity = TR_GetEntityIndex();
 		
 		int turret = -1;
-		
-		if (IsEntityNPC(entity) && IsEntitySameTeam(entity, client))
+
+		if (IsEntityTurret(entity) && IsEntitySameTeam(entity, client))
 		{
-			turret = entity;
-		}
-		else if (IsEntityTurret(entity) && IsEntitySameTeam(entity, client))
-		{
-			turret = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+			turret = GetEntProp(entity, Prop_Data, "m_iHammerID") == -1 ? GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity") : entity;
 		}
 		
 		if (turret != -1)
@@ -2102,14 +2101,10 @@ bool Weapon_OnMenuTurret(int client, int entity, float flCurrentTime)
 		entity = TR_GetEntityIndex();
 
 		int turret = -1;
-		
-		if (IsEntityNPC(entity) && IsEntitySameTeam(entity, client))
+
+		if (IsEntityTurret(entity) && IsEntitySameTeam(entity, client))
 		{
-			turret = entity;
-		}
-		else if (IsEntityTurret(entity) && IsEntitySameTeam(entity, client))
-		{
-			turret = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
+			turret = GetEntProp(entity, Prop_Data, "m_iHammerID") == -1 ? GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity") : entity;
 		}
 
 		if (turret != -1)
@@ -2707,25 +2702,6 @@ bool IsEntitySameTeam(int entity, int client)
 }
 
 /**
- * @brief Validate a npc turret.
- *
- * @param entity            The entity index.
- * @return                  True or false.
- **/
-bool IsEntityNPC(int entity)
-{
-	if (entity <= MaxClients || !IsValidEdict(entity))
-	{
-		return false;
-	}
-	
-	static char sClassname[SMALL_LINE_LENGTH];
-	GetEntPropString(entity, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
-	
-	return (!strcmp(sClassname, "npc_turret", false));
-}
-
-/**
  * @brief Validate a turret.
  *
  * @param entity            The entity index.
@@ -2741,7 +2717,7 @@ bool IsEntityTurret(int entity)
 	static char sClassname[SMALL_LINE_LENGTH];
 	GetEntPropString(entity, Prop_Data, "m_iName", sClassname, sizeof(sClassname));
 	
-	return (!strcmp(sClassname, "turret", false));
+	return (!strncmp(sClassname, "turret_", 7, false));
 }
 
 /**

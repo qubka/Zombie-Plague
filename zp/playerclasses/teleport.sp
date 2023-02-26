@@ -220,10 +220,10 @@ public Action TeleportOnClientCount(Handle timer, int userID)
 			static float vPosition[3];
 			ToolsGetAbsOrigin(client, vPosition); 
 			
-			float flDistance = GetVectorDistance(vPosition, gClientData[client].TeleOrigin);
+			float flDistance = GetVectorDistance(vPosition, gClientData[client].TeleOrigin, true);
 			float flAutoCancelDist = gCvarList.TELEPORT_AUTOCANCEL_DIST.FloatValue;
   
-			if (flDistance > flAutoCancelDist)
+			if (flDistance > flAutoCancelDist * flAutoCancelDist)
 			{
 				TranslationPrintHintText(client, true, "teleport autocancel centertext");
 				TranslationPrintToChat(client, "teleport autocancel text", RoundToNearest(flAutoCancelDist));

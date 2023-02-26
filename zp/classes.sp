@@ -2626,18 +2626,18 @@ int ClassTypeToIndex(const char[] sBuffer)
  **/
 int ClassTypeToRandomClassIndex(int iType)
 {
-	int iRandom; static int iClass[MAXPLAYERS+1];
+	int iTotal; static int iClass[MAXPLAYERS+1];
 
 	int iSize = gServerData.Classes.Length;
 	for (int i = 0; i < iSize; i++)
 	{
 		if (ClassGetType(i) == iType)
 		{
-			iClass[iRandom++] = i;
+			iClass[iTotal++] = i;
 		}
 	}
 	
-	return (iRandom) ? iClass[GetRandomInt(0, iRandom-1)] : -1;
+	return (iTotal) ? iClass[GetRandomInt(0, iTotal-1)] : -1;
 }
 
 /**

@@ -223,7 +223,8 @@ public Action CoffinThinkHook(Handle hTimer, int refID)
 
 	if (entity != -1)
 	{
-		static float vPosition[3];
+		static float vPosition[3]; static float vPosition2[3];
+		
 		GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 	
 		if (IsEntityStuck(entity, vPosition)) 
@@ -233,12 +234,19 @@ public Action CoffinThinkHook(Handle hTimer, int refID)
 		}
 	
 		float flRadius = hCvarSkillRadius.FloatValue;
+		float flRadius2 = flRadius * flRadius;
 		float flSlowdown = hCvarSkillSlowdown.FloatValue;
 	
-		int i; int it = 1; /// iterator
-		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (ZP_IsPlayerZombie(i))
+			if (!IsClientValid(i) || ZP_IsPlayerZombie(i))
+			{
+				continue;
+			}
+			
+			GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+
+			if (GetVectorDistance(vPosition, vPosition2, true) > flRadius2)
 			{
 				continue;
 			}
@@ -291,14 +299,25 @@ void CoffinExpload(int entity)
 	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 	float flRadius = hCvarSkillRadius.FloatValue;
+	float flRadius2 = flRadius * flRadius;
 	float flKnock = hCvarSkillKnockback.FloatValue;
 
-	int i; int it = 1; /// iterator
-	while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+	for (int i = 1; i <= MaxClients; i++)
 	{
+		if (!IsClientValid(i))
+		{
+			continue;
+		}
+	
 		GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
 
-		UTIL_CreatePhysForce(i, vPosition, vPosition2, GetVectorDistance(vPosition, vPosition2), flKnock, flRadius);
+		float flDistance = GetVectorDistance(vPosition, vPosition2, true);
+		if (flDistance > flRadius2)
+		{
+			continue;
+		}
+		
+		UTIL_CreatePhysForce(i, vPosition, vPosition2, SquareRoot(flDistance), flKnock, flRadius);
 		
 		UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);
 	}

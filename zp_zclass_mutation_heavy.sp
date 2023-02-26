@@ -352,7 +352,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 		static float vVelocity[3];
 		GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-		if (GetVectorLength(vVelocity) > 0.0)
+		if (GetVectorLength(vVelocity, true) > 0.01)
 		{
 			ZP_ResetClientSkill(client);
 			

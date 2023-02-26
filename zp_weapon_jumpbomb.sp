@@ -164,14 +164,25 @@ public Action GrenadeThinkHook(Handle hTimer, int refID)
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		float flRadius = hCvarJumpRadius.FloatValue;
+		float flRadius2 = flRadius * flRadius;
 		float flKnock = ZP_GetWeaponKnockBack(gWeapon);
 		
-		int i; int it = 1; /// iterator
-		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+		for (int i = 1; i <= MaxClients; i++)
 		{
+			if (!IsClientValid(i))
+			{
+				continue;
+			}
+			
 			GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+        
+			float flDistance2 = GetVectorDistance(vPosition, vPosition2, true);
+			if (flDistance2 > flRadius2)
+			{
+				continue;
+			}
 	
-			UTIL_CreatePhysForce(i, vPosition, vPosition2, GetVectorDistance(vPosition, vPosition2), flKnock, flRadius);
+			UTIL_CreatePhysForce(i, vPosition, vPosition2, SquareRoot(flDistance2), flKnock, flRadius);
 			
 			UTIL_CreateShakeScreen(i, 2.0, 1.0, 3.0);
 		}

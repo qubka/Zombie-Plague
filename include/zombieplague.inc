@@ -103,17 +103,6 @@ native bool ZP_UpdateTransmitState(int entity);
 native bool ZP_SetProgressBarTime(int client, int duration);
 
 /**
- * @brief Used to iterate all the clients collision within a sphere.
- *
- * @param it                The iterator.
- * @param center            The sphere origin.
- * @param radius            The sphere radius.
- *  
- * @return                  The client index.
- **/
-native int ZP_FindPlayerInSphere(int &it, const float center[3], float radius);
-
-/**
  * @brief Returns true if the player is a zombie, false if not. 
  *
  * @param client            The client index.

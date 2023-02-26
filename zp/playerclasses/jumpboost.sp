@@ -148,13 +148,17 @@ public void JumpBoostOnClientJumpPost(int userID)
 		static float vVelocity[3];
 		ToolsGetVelocity(client, vVelocity);
 		
-		if (GetVectorLength(vVelocity) < gCvarList.JUMPBOOST_MAX.FloatValue)
+		float flMaxBoost = gCvarList.JUMPBOOST_MAX.FloatValue;
+		float flMaxBoost2 = flMaxBoost * flMaxBoost;
+		float flMultiplier = gCvarList.JUMPBOOST_MULTIPLIER.FloatValue;
+		
+		if (GetVectorLength(vVelocity, true) < flMaxBoost2)
 		{
-			vVelocity[0] *= gCvarList.JUMPBOOST_MULTIPLIER.FloatValue;
-			vVelocity[1] *= gCvarList.JUMPBOOST_MULTIPLIER.FloatValue;
+			vVelocity[0] *= flMultiplier;
+			vVelocity[1] *= flMultiplier;
 		}
 		
-		vVelocity[2] *= gCvarList.JUMPBOOST_MULTIPLIER.FloatValue;
+		vVelocity[2] *= flMultiplier;
 
 		int weapon = ToolsGetActiveWeapon(client);
 		

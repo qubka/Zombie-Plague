@@ -75,6 +75,7 @@ enum LogModule
 	LogModule_Engine,
 	LogModule_Config,
 	LogModule_Debug,
+	LogModule_Memory,
 	LogModule_Tools,
 	LogModule_Database,
 	LogModule_Decrypt,
@@ -113,11 +114,12 @@ bool LogModuleFilterCache[23/*LogModule*/];
 void LogOnInit()
 {
 	gServerData.Logs = new ArrayList(SMALL_LINE_LENGTH);
+	
 	gServerData.Modules = new StringMap();
-
 	gServerData.Modules.SetValue("engine", LogModule_Engine);
 	gServerData.Modules.SetValue("config", LogModule_Config);
 	gServerData.Modules.SetValue("debug", LogModule_Debug);
+	gServerData.Modules.SetValue("memory", LogModule_Memory);
 	gServerData.Modules.SetValue("tools", LogModule_Tools);
 	gServerData.Modules.SetValue("database", LogModule_Database);
 	gServerData.Modules.SetValue("models", LogModule_Decrypt);
@@ -232,6 +234,10 @@ int LogGetModuleNameString(char[] sBuffer, int iMaxLen, LogModule iModule, bool 
 		case LogModule_Debug :
 		{
 			return shortName ? strcopy(sBuffer, iMaxLen, "debug") : strcopy(sBuffer, iMaxLen, "Debug");
+		}		
+		case LogModule_Memory :
+		{
+			return shortName ? strcopy(sBuffer, iMaxLen, "memory") : strcopy(sBuffer, iMaxLen, "Memory");
 		}
 		case LogModule_Tools :
 		{

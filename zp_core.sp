@@ -54,6 +54,7 @@
 #include "zp/log.sp"
 #include "zp/zombieplague.sp" 
 #include "zp/debug.sp" 
+#include "zp/memory.sp" 
 #include "zp/commands.sp"
 #include "zp/database.sp"
 #include "zp/translation.sp"   
@@ -109,6 +110,7 @@ public void OnPluginStart()
 	CvarsOnInit();
 	GameEngineOnInit();
 	CommandsOnInit();
+	MemoryOnInit();
 	LogOnInit();
 	ClassesOnInit();
 	CostumesOnInit(); 
@@ -146,9 +148,9 @@ public void OnMapStart()
  **/
 public void OnMapEnd()
 {
-	GameEngineOnUnload();
-	GameModesOnUnload();
-	ExtraItemsOnUnload();
+	GameEngineOnMapEnd();
+	GameModesOnMapEnd();
+	ExtraItemsOnMapEnd();
 }
 
 /**
@@ -159,6 +161,7 @@ public void OnPluginEnd()
 	WeaponsOnUnload();
 	DataBaseOnUnload();
 	CostumesOnUnload();
+	MemoryOnUnload();
 }
 
 /**

@@ -213,18 +213,26 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
 	
 	if (client)
 	{
-		static float vPosition[3];
-		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition); vPosition[2] += 25.0;  
+		static float vPosition[3]; static float vPosition2[3];
+		
+		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 
 		bool bInfect = ZP_IsGameModeInfect(ZP_GetCurrentGameMode()) && ZP_IsStartedRound();
 
 		float flRadius = hCvarSkillRadius.FloatValue;
+		float flRadius2 = flRadius * flRadius;
 		float flDamage = hCvarSkillDamage.FloatValue;
 
-		int i; int it = 1; /// iterator
-		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (ZP_IsPlayerZombie(i))
+			if (!IsClientValid(i) || ZP_IsPlayerZombie(i))
+			{
+				continue;
+			}
+			
+			GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+
+			if (GetVectorDistance(vPosition, vPosition2, true) > flRadius2)
 			{
 				continue;
 			}
@@ -242,6 +250,8 @@ public Action ClientOnScreaming(Handle hTimer, int userID)
 				ZP_TakeDamage(i, client, client, flDamage, DMG_SONIC);
 			}
 		}
+	   
+		vPosition[2] += 25.0;  
 	   
 		TE_SetupBeamRingPoint(vPosition, 50.0, flRadius * 2.0, gTrail, 0, 1, 10, 1.0, 15.0, 0.0, {255, 0, 0, 200}, 50, 0);
 		TE_SendToAll();

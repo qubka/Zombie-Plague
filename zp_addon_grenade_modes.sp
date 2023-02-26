@@ -476,7 +476,7 @@ Action GrenadeProximityThinkWaitIdle(int grenade, int &iState, float &flCounter)
 	static float vVelocity[3];
 	GetEntPropVector(grenade, Prop_Data, "m_vecVelocity", vVelocity);
 	
-	if (GetVectorLength(vVelocity) <= 0.0)
+	if (GetVectorLength(vVelocity, true) <= 0.0)
 	{
 		GrenadeSetBreakable(grenade);
 
@@ -533,7 +533,7 @@ Action GrenadeProximityThinkDetect(int grenade, int &iState, float &flCounter)
 	
 	if (owner != -1)
 	{
-		static float vPosition[3]; static float vVelocity[3];
+		static float vPosition[3]; static float vPosition2[3]; static float vVelocity[3];
 
 		GetEntPropVector(grenade, Prop_Data, "m_vecAbsOrigin", vPosition);
 		
@@ -541,12 +541,20 @@ Action GrenadeProximityThinkDetect(int grenade, int &iState, float &flCounter)
 		bool bSensor = view_as<bool>(GetEntProp(grenade, Prop_Data, "m_bIsAutoaimTarget"));
 		
 		float flRadius = hCvarGrenadeProximityRadius.FloatValue;
+		float flRadius2 = flRadius * flRadius;
 		float flSensorActivate = hCvarGrenadeSensorActivate.FloatValue;
+		float flSensorActivate2 = flSensorActivate * flSensorActivate;
 		
-		int i; int it = 1; /// iterator
-		while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (ZP_GetPlayerTeam(i) == iTeam)
+			if (!IsClientValid(i) || ZP_GetPlayerTeam(i) == iTeam)
+			{
+				continue;
+			}
+			
+			GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
+
+			if (GetVectorDistance(vPosition, vPosition2, true) > flRadius2)
 			{
 				continue;
 			}
@@ -555,7 +563,7 @@ Action GrenadeProximityThinkDetect(int grenade, int &iState, float &flCounter)
 			{
 				GetEntPropVector(i, Prop_Data, "m_vecVelocity", vVelocity);
 				
-				if (GetVectorLength(vVelocity) < flSensorActivate)
+				if (GetVectorLength(vVelocity, true) < flSensorActivate2)
 				{
 					continue;
 				}
@@ -576,7 +584,7 @@ Action GrenadeProximityThinkDetect(int grenade, int &iState, float &flCounter)
 			
 			int iMaxPlayers = GetClientsInRange(vPosition, RangeType_Audibility, iPlayers, MaxClients);
 			
-			for (i = 0 ; i < iMaxPlayers ; i++)
+			for (int i = 0 ; i < iMaxPlayers ; i++)
 			{
 				int client = iPlayers[i];
    
@@ -1167,26 +1175,35 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 		{
 			int iTeam = GetEntProp(grenade, Prop_Data, "m_iTeamNum");
 	
-			float flOldDistance = MAX_FLOAT; float flNewDistance;
+			float flOldDistance = MAX_FLOAT;
 
 			float flRadius = hCvarGrenadeHomingRadius.FloatValue;
+			float flRadius2 = flRadius * flRadius;
 
-			int i; int it = 1; /// iterator
-			while ((i = ZP_FindPlayerInSphere(it, vPosition, flRadius)) != -1)
+			for (int i = 1; i <= MaxClients; i++)
 			{
-				int iPending = ZP_GetPlayerTeam(i);
-				if (iPending == iTeam)
+				if (!IsClientValid(i))
 				{
 					continue;
 				}
 				
 				GetEntPropVector(i, Prop_Data, "m_vecAbsOrigin", vPosition2);
-			
-				flNewDistance = GetVectorDistance(vPosition, vPosition2);
-				
-				if (flNewDistance < flOldDistance)
+
+				float flDistance = GetVectorDistance(vPosition, vPosition2, true);
+				if (flDistance > flRadius2)
 				{
-					flOldDistance = flNewDistance;
+					continue;
+				}
+			
+				int iPending = ZP_GetPlayerTeam(i);
+				if (iPending == iTeam)
+				{
+					continue;
+				}
+
+				if (flDistance < flOldDistance)
+				{
+					flOldDistance = flDistance;
 					SetEntPropEnt(grenade, Prop_Data, "m_hEffectEntity", i);
 					SetEntProp(grenade, Prop_Data, "m_iHammerID", iPending);
 					SetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime", flOldDistance);
@@ -1201,8 +1218,11 @@ public Action GrenadeHomingThinkHook(Handle hTimer, int refID)
 			GetEntPropVector(target, Prop_Data, "m_vecAbsOrigin", vPosition2);
 
 			MakeVectorFromPoints(vPosition, vPosition2, vEndVelocity);
+			
+			float flRadius = hCvarGrenadeHomingAvoid.FloatValue;
+			float flRadius2 = flRadius * flRadius;
 
-			if (GetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime") > hCvarGrenadeHomingAvoid.FloatValue)
+			if (GetEntPropFloat(grenade, Prop_Data, "m_flDissolveStartTime") > flRadius2)
 			{
 				NormalizeVector(vEndVelocity, vEndVelocity);
 				NormalizeVector(vVelocity, vVelocity);
