@@ -256,7 +256,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int bTrigger, int iStateMode
 		
 			ZP_SetWeaponAnimation(client, ANIM_SHOOT);  
 			
-			delete hEmitterCreate[client]; /// Bugfix
+			delete hEmitterCreate[client];
 			hEmitterCreate[client] = CreateTimer(ZP_GetWeaponShoot(gWeapon) - 0.1, Weapon_OnCreateEmitter, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 		}
 		else
@@ -507,7 +507,6 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 			SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 
 			int iStateMode = !GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount");
-			
 			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", iStateMode);
 			
 			EmitSoundToAll("survival/breach_activate_nobombs_01.wav", client, SNDCHAN_WEAPON);

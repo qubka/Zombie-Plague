@@ -51,7 +51,7 @@
 				"windows"	"353"
 				"linux"		"359"
 			}
-			"CBaseCombatWeapon::GetReserveAmmoMax" // center (Find CBaseCombatWeapon with "BaseCombatWeapon.WeaponDrop" str in CBaseCombatWeapon::FallThink)
+			"CBaseCombatWeapon::GetReserveAmmoMax" // center
 			{
 				"windows"	"357"
 				"linux"		"363"
@@ -94,11 +94,6 @@
 				"library"	"engine"
 				"windows"	"@CreateInterface"
 				"linux"		"\x55\x89\xE5\x57\x56\x53\x83\xEC\x0C\x8B\x1D\x2A\x2A\x2A\x2A\x8B\x75\x08\x8B\x7D\x0C"
-			}
-			"Find_Server"
-			{
-				"library"	"server"
-				"windows"	"\x4D\x5A"
 			}
 
 			///  v2 = CBaseAnimating::GetSequenceActivity(*((CBaseAnimating **)this + 7), *(_DWORD *)(*((_DWORD *)this + 7) + 1004));
@@ -171,11 +166,11 @@
 			
 			/*___________________________________________________________________________________________*/
 			
-			"g_pMemAllocFunc"
+			"g_pMemAllocFunc" // Look for any function with "g_pMemAlloc" in it
 			{
-				"library"		"server"
-				"windows"		"\x55\x8B\xEC\x56\x8B\xF1\x83\x4E\x30\x04"
-				"linux"			"\x55\x89\xE5\x57\x56\x53\x81\xEC\x3C\x01\x00\x00\x8B\x45\x08\x65\x8B\x0D\x14\x00\x00\x00\x89\x4D\xE4\x31\xC9\x89\xC1"
+				"library"	"server"
+				"windows"	"\x55\x8B\xEC\x56\x8B\xF1\x83\x4E\x30\x04"
+				"linux"		"\x55\x89\xE5\x57\x56\x53\x81\xEC\x3C\x01\x00\x00\x8B\x45\x08\x65\x8B\x0D\x14\x00\x00\x00\x89\x4D\xE4\x31\xC9\x89\xC1"
 			}
 		}
 		"Addresses"
@@ -199,10 +194,6 @@
 			"FX_FireBullets"
 			{
 				"signature"	"FX_FireBullets"
-			}
-			"CGlobalEntityList::FindEntityInSphere"
-			{
-				"signature"	"CGlobalEntityList::FindEntityInSphere"
 			}
 			"m_ArmorValue"
 			{
@@ -262,18 +253,6 @@
 				"windows"
 				{
 					"read"	"865"
-				}
-			}
-			"m_iSecondaryReserveAmmoCount"
-			{
-				"signature" "ServerClassInit<DT_BaseCombatWeapon::ignored>"
-				"linux"
-				{
-					"read"	"511"
-				}
-				"windows"
-				{
-					"read"	"877"
 				}
 			}
 			"g_SendTableCRC"

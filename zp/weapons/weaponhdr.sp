@@ -85,13 +85,7 @@ int WeaponHDRCreateSwapWeapon(int iD, int client)
 	{
 		ToolsSetOwner(weapon1, client);
 		WeaponsSetOwner(weapon1, client);
-
-		SetEntityMoveType(weapon1, MOVETYPE_NONE);
-		
-		UTIL_SetRenderColor(weapon1, Color_Alpha, 0);
-		//AcceptEntityInput(weapon1, "DisableDraw"); 
-		AcceptEntityInput(weapon1, "DisableShadow"); 
-		AcceptEntityInput(weapon1, "DisableReceivingFlashlight");
+		WeaponHDRSetDropped(weapon1, false);
 
 		SetVariantString("!activator");
 		AcceptEntityInput(weapon1, "SetParent", client, weapon1);
@@ -352,16 +346,6 @@ void WeaponHDRSetPlayerViewModel(int client, int iView, int iModel)
 }
 
 /**
- * @brief Gets the world (player) weapon model.
- *
- * @param weapon            The weapon index.
- **/
-int WeaponHDRGetPlayerWorldModel(int weapon)
-{ 
-	return GetEntPropEnt(weapon, Prop_Send, "m_hWeaponWorldModel");
-}
-
-/**
  * @brief Gets the weapon draw sequence index.
  *
  * @param weapon            The weapon index.
@@ -382,6 +366,40 @@ int WeaponHDRGetPlayerWorldModel(int weapon)
 	
 	return -1;
 }*/
+
+/**
+ * @brief Checks the weapon dropped model.
+ *
+ * @param weapon            The weapon index.
+ * @return                  True or false.    
+ **/
+bool WeaponHDRHasDropped(int weapon)
+{
+	return GetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle") != 0.0;
+}
+
+/**
+ * @brief Controls the weapon dropped model.
+ *
+ * @param weapon            The weapon index.
+ * @param bDropped          Enable or disable an aspect of create dropped models.
+ **/
+void WeaponHDRSetDropped(int weapon, bool bDropped)
+{
+	#define DEFAULT_LOOK_AT_USE_ANGLE 0.8
+	
+	SetEntPropFloat(weapon, Prop_Data, "m_flUseLookAtAngle", bDropped ? DEFAULT_LOOK_AT_USE_ANGLE : 0.0);
+}
+
+/**
+ * @brief Gets the world (player) weapon model.
+ *
+ * @param weapon            The weapon index.
+ **/
+int WeaponHDRGetPlayerWorldModel(int weapon)
+{ 
+	return GetEntPropEnt(weapon, Prop_Send, "m_hWeaponWorldModel");
+}
 
 /**
  * @brief Sets the world (player) weapon model.
@@ -435,7 +453,7 @@ void WeaponHDRSetDroppedModel(int weapon, int iD, ModelType nModel = ModelType_I
 			AcceptEntityInput(weapon, "DisableShadow");
 			AcceptEntityInput(weapon, "DisableReceivingFlashlight");
 			
-			if (WeaponHDRGetSwappedWeapon(weapon) == -1)
+			if (WeaponHDRGetSwappedWeapon(weapon) == -1 && WeaponHDRHasDropped(weapon))
 			{
 				static float vPosition[3]; static float vAngle[3];
 

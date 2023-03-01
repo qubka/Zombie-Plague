@@ -67,7 +67,7 @@ public void OnLibraryAdded(const char[] sLibrary)
 public void ZP_OnEngineExecute()
 {
 	gWeapon = ZP_GetWeaponNameID("molotov");
-	gDublicat = ZP_GetWeaponNameID("inc grenade"); /// Bugfix
+	gDublicat = ZP_GetWeaponNameID("inc grenade");
 	if (gWeapon == -1 || gDublicat == -1) SetFailState("[ZP] Custom weapon ID from name : \"molotov\" or \"inc grenade\" wasn't find");
 }
 

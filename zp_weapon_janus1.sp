@@ -310,9 +310,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iAmmo, int iCounter, i
 	
 		ZP_SetWeaponAnimation(client, ANIM_CHANGE_A);        
 		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
-		
-		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_ACTIVE);
-		
+
 		SetEntProp(weapon, Prop_Data, "m_iClip2", 0);
 		
 		flCurrentTime += WEAPON_SWITCH_TIME;
@@ -475,7 +473,6 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 		if ((flApplyModeTime = GetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer")) && flApplyModeTime <= GetGameTime())
 		{
 			SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
-
 			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_ACTIVE);
 		}
 

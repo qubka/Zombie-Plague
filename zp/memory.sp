@@ -55,7 +55,10 @@ enum struct MemoryPoolEntry
 	Address addr;
 	char name[MEMORYPOOL_NAME_MAX];
 }
-
+/**
+ * @endsection
+ **/
+ 
 /**
  * @brief Memory module init function.
  **/
@@ -85,37 +88,7 @@ void MemoryOnInit()
 	
 	fnInitGameConfAddress(gServerData.Config, g_pMemAlloc, "g_pMemAlloc");
 
-	if (gServerData.Platform == OS_Windows)
-	{
-		{
-			StartPrepSDKCall(SDKCall_Raw);
-			PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Malloc");
-			
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			
-			PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-
-			if ((hMalloc = EndPrepSDKCall()) == null)
-			{
-				LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Memory, "GameData Validation", "Failed to load SDK call \"Malloc\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-			}
-		}
-		
-		/*__________________________________________________________________________________________________*/
-		
-		{
-			StartPrepSDKCall(SDKCall_Raw);
-			PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Free");
-			
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-			
-			if ((hFree = EndPrepSDKCall()) == null)
-			{
-				LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Memory, "GameData Validation", "Failed to load SDK call \"Free\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
-			}
-		}
-	}
-	else
+	if (gServerData.Engine == Engine_CSS && gServerData.Platform == OS_Linux)
 	{
 		{
 			StartPrepSDKCall(SDKCall_Static);
@@ -144,6 +117,36 @@ void MemoryOnInit()
 			if ((hFree = EndPrepSDKCall()) == null)
 			{
 				LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Memory, "GameData Validation", "Failed to load SDK call \"Free\". Update signature in \"%s\"", PLUGIN_CONFIG);
+			}
+		}
+	}
+	else
+	{
+		{
+			StartPrepSDKCall(SDKCall_Raw);
+			PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Malloc");
+			
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			
+			PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+
+			if ((hMalloc = EndPrepSDKCall()) == null)
+			{
+				LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Memory, "GameData Validation", "Failed to load SDK call \"Malloc\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
+			}
+		}
+		
+		/*__________________________________________________________________________________________________*/
+		
+		{
+			StartPrepSDKCall(SDKCall_Raw);
+			PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Virtual, "Free");
+			
+			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+			
+			if ((hFree = EndPrepSDKCall()) == null)
+			{
+				LogEvent(false, LogType_Fatal, LOG_CORE_EVENTS, LogModule_Memory, "GameData Validation", "Failed to load SDK call \"Free\". Update virtual offset in \"%s\"", PLUGIN_CONFIG);
 			}
 		}
 	}
@@ -176,7 +179,7 @@ public Action MemoryOnCommandCatched(int client, int iArguments)
 {
 	SetGlobalTransTarget(!client ? LANG_SERVER : client);
 
-	if (gMemoryPool == null || (gMemoryPool && gMemoryPool.Length == 0))
+	if (gMemoryPool == null || gMemoryPool.Length == 0)
 	{
 		TranslationReplyToCommand(client, "memory pool invalid");
 		return Plugin_Handled;

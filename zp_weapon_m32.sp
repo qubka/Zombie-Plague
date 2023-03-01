@@ -320,7 +320,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iR
 
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-	if (GetVectorLength(vVelocity) <= 0.0)
+	if (GetVectorLength(vVelocity, true) <= 0.0)
 	{
 	}
 	else if (!(iFlags & FL_ONGROUND))

@@ -51,7 +51,7 @@
 /**
  * Errors description for a codes.
  **/
-char sParamError[7][PLATFORM_LINE_LENGTH] = {
+char sParamError[7][] = {
 	/*"No errors",*/
 	"Source string is empty",
 	"Unexpected key name",

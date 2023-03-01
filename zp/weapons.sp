@@ -256,7 +256,7 @@ void WeaponsOnCacheData()
 }
 
 /**
- * @brief Purge weapon SDK data.
+ * @brief Weapons module unload function.
  **/
 void WeaponsOnUnload()
 {

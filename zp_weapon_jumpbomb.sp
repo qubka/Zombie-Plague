@@ -156,7 +156,7 @@ public Action GrenadeThinkHook(Handle hTimer, int refID)
 		
 		GetEntPropVector(grenade, Prop_Data, "m_vecVelocity", vVelocity);
 		
-		if (GetVectorLength(vVelocity) > 0.1)
+		if (GetVectorLength(vVelocity, true) > 0.01)
 		{
 			return Plugin_Continue;
 		}

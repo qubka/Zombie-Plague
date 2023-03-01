@@ -425,6 +425,14 @@ public void ClassesOnConfigReload()
 }
 
 /**
+ * @brief Classes module unload function.
+ **/
+void ClassesOnUnload()
+{
+	ToolsOnUnload();
+}
+
+/**
  * @brief Creates commands for classes module.
  **/
 void ClassesOnCommandInit()

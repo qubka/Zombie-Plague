@@ -24,7 +24,51 @@
  *
  * ============================================================================
  **/
- 
+
+/**
+ * @section Struct of data for patching.
+ **/
+enum struct PatchData
+{
+	char name[SMALL_LINE_LENGTH];
+	int value;
+	/**/
+	Address addr;
+	int original;
+	
+	bool Patch(int iOffset)
+	{
+		fnInitGameConfAddress(gServerData.Config, this.addr, this.name, false);
+	
+		if (this.addr != Address_Null) 
+		{
+			Address pDest = this.addr + view_as<Address>(iOffset);
+			this.original = LoadFromAddress(pDest, NumberType_Int32);
+			StoreToAddress(pDest, this.value, NumberType_Int32);
+			return true;
+		}
+		else
+		{
+			LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SendTableCRC Patch", "Not able to patch \"%s\" with invalid address", this.name);
+			return false;
+		}
+	}
+	
+	bool Unpatch(int iOffset)
+	{
+		if (this.addr != Address_Null) 
+		{
+			Address pDest = this.addr + view_as<Address>(iOffset);
+			StoreToAddress(pDest, this.prev, NumberType_Int32);
+			return true;
+		}
+		return false;
+	}
+}
+/**
+ * @endsection
+ **/
+
 /**
  * Handles for storing messages id.
  **/

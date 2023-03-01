@@ -43,6 +43,9 @@ public Plugin myinfo =
 
 // Timer index
 Handle hZombieMadness[MAXPLAYERS+1] = { null, ... }; 
+ 
+// Light index
+int iLight[MAXPLAYERS+1] = { -1, ... }; 
 
 // Sound index
 int gSound;
@@ -129,6 +132,15 @@ public void OnClientPostAdminCheck(int client)
 public void OnClientDisconnect(int client)
 {
 	delete hZombieMadness[client];
+	
+	int entity = EntRefToEntIndex(iLight[client]);
+	
+	if (entity != -1)
+	{
+		AcceptEntityInput(entity, "Kill");
+	}
+	
+	iLight[client] = -1;
 }
 
 /**
@@ -140,6 +152,15 @@ public void OnClientDisconnect(int client)
 public void ZP_OnClientDeath(int client, int attacker)
 {
 	delete hZombieMadness[client];
+	
+	int entity = EntRefToEntIndex(iLight[client]);
+	
+	if (entity != -1)
+	{
+		AcceptEntityInput(entity, "Kill");
+	}
+	
+	iLight[client] = -1;
 }
 
 /**
@@ -151,6 +172,15 @@ public void ZP_OnClientDeath(int client, int attacker)
 public void ZP_OnClientUpdated(int client, int attacker)
 {
 	delete hZombieMadness[client];
+	
+	int entity = EntRefToEntIndex(iLight[client]);
+	
+	if (entity != -1)
+	{
+		AcceptEntityInput(entity, "Kill");
+	}
+	
+	iLight[client] = -1;
 }
 
 /**
@@ -195,7 +225,12 @@ public void ZP_OnClientBuyExtraItem(int client, int itemID)
 		static char sEffect[SMALL_LINE_LENGTH];
 		hCvarMadnessColor.GetString(sEffect, sizeof(sEffect));
 	
-		UTIL_CreateLight(client, vPosition, _, _, _, _, _, _, _, sEffect, hCvarMadnessDistance.FloatValue, hCvarMadnessRadius.FloatValue, flDuration);
+		int entity = UTIL_CreateLight(client, vPosition, _, _, _, _, _, _, _, sEffect, hCvarMadnessDistance.FloatValue, hCvarMadnessRadius.FloatValue, flDuration);
+		
+		if (entity != -1)
+		{
+			iLight[client] = EntIndexToEntRef(entity);
+		}
 		
 		ZP_SetProgressBarTime(client, RoundToNearest(flDuration));
 		

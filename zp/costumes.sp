@@ -1021,4 +1021,6 @@ void CostumesRemove(int client)
 	{
 		AcceptEntityInput(entity, "Kill"); /// Destroy
 	}
+	
+	gClientData[client].AttachmentCostume = -1;
 }

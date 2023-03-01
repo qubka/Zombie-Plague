@@ -357,13 +357,15 @@ float AntiStickGetBoxMaxBoundary(int iAxis, const float flBoundaries[AntiStickBo
 	int iSize = sizeof(flBoundaries);
 	for (int x = 1; x < iSize; x++)
 	{
-		if (!bMin && flBoundaries[x][iAxis] > flOutlier)
+		float flBoundary = flBoundaries[x][iAxis];
+		
+		if (!bMin && flBoundary > flOutlier)
 		{
-			flOutlier = flBoundaries[x][iAxis];
+			flOutlier = flBoundary;
 		}
-		else if (bMin && flBoundaries[x][iAxis] < flOutlier)
+		else if (bMin && flBoundary < flOutlier)
 		{
-			flOutlier = flBoundaries[x][iAxis];
+			flOutlier = flBoundary;
 		}
 	}
 	
@@ -458,7 +460,7 @@ bool AntiStickIsModelBoxColliding(int clientIndex1, int clientIndex2)
  *
  * @link https://github.com/erich666/GraphicsGems/blob/master/gems/BoxSphere.c
  **/
-bool AntiStickIsBoxIntersectingSphere(const float flBoundaries[AntiStickBoxBound][3], const float vPosition[3], float flRadius)
+/*bool AntiStickIsBoxIntersectingSphere(const float flBoundaries[AntiStickBoxBound][3], const float vPosition[3], float flRadius)
 {
 	float flDelta; float flDistance;
 
@@ -505,7 +507,7 @@ bool AntiStickIsBoxIntersectingSphere(const float flBoundaries[AntiStickBoxBound
 	}
 
 	return flDistance <= (flRadius * flRadius);
-}
+}*/
 
 /**
  * @brief Sets the collision group on a client.

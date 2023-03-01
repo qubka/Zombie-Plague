@@ -410,7 +410,6 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 		if ((flApplyModeTime = GetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer")) && flApplyModeTime <= GetGameTime())
 		{
 			SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
-
 			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", !GetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount"));
 		}
 

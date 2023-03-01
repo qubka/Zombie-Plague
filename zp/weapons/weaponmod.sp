@@ -316,9 +316,11 @@ void WeaponMODOnUnload()
 
 				if (view2 != -1)
 				{
-					AcceptEntityInput(view2, "DisableDraw"); 
+					AcceptEntityInput(view2, "Kill"); 
 				}
 				
+				gClientData[i].ViewModels[0] = -1;
+				gClientData[i].ViewModels[1] = -1;
 				gClientData[i].CustomWeapon = -1;
 			}
 		}
@@ -1069,7 +1071,7 @@ public void WeaponMODOnSwitchPost(int client, int weapon)
 
 /**
  * Hook: PostThinkPost
- * @brief Player hold any weapon.
+ * @brief Player think.
  *
  * @param client            The client index.
  **/

@@ -159,6 +159,7 @@ public void OnMapEnd()
 public void OnPluginEnd()
 {
 	WeaponsOnUnload();
+	ClassesOnUnload();
 	DataBaseOnUnload();
 	CostumesOnUnload();
 	MemoryOnUnload();

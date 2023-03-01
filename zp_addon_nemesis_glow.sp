@@ -41,6 +41,9 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
+// Light index
+int iLight[MAXPLAYERS+1] = { -1, ... }; 
+
 // Mode index
 int gMode;
 
@@ -84,6 +87,58 @@ public void ZP_OnEngineExecute()
 {
 	gMode = ZP_GetGameModeNameID("nemesis mode");
 }
+/**
+ * @brief Called when a client is disconnecting from the server.
+ *
+ * @param client            The client index.
+ **/
+public void OnClientDisconnect(int client)
+{
+	int entity = EntRefToEntIndex(iLight[client]);
+	
+	if (entity != -1)
+	{
+		AcceptEntityInput(entity, "Kill");
+	}
+	
+	iLight[client] = -1;
+}
+
+/**
+ * @brief Called when a client has been killed.
+ * 
+ * @param client            The client index.
+ * @param attacker          The attacker index.
+ **/
+public void ZP_OnClientDeath(int client, int attacker)
+{
+	int entity = EntRefToEntIndex(iLight[client]);
+	
+	if (entity != -1)
+	{
+		AcceptEntityInput(entity, "Kill");
+	}
+	
+	iLight[client] = -1;
+}
+
+/**
+ * @brief Called when a client became a zombie/human.
+ * 
+ * @param client            The client index.
+ * @param attacker          The attacker index.
+ **/
+public void ZP_OnClientUpdated(int client, int attacker)
+{
+	int entity = EntRefToEntIndex(iLight[client]);
+	
+	if (entity != -1)
+	{
+		AcceptEntityInput(entity, "Kill");
+	}
+	
+	iLight[client] = -1;
+}
 
 /**
  * @brief Called after a zombie round is started.
@@ -102,6 +157,11 @@ public void ZP_OnGameModeStart(int mode)
 		static char sEffect[SMALL_LINE_LENGTH];
 		hCvarNemesisColor.GetString(sEffect, sizeof(sEffect));
 	
-		UTIL_CreateLight(client, vPosition, _, _, _, _, _, _, _, sEffect, hCvarNemesisDistance.FloatValue, hCvarNemesisRadius.FloatValue);
+		int entity = UTIL_CreateLight(client, vPosition, _, _, _, _, _, _, _, sEffect, hCvarNemesisDistance.FloatValue, hCvarNemesisRadius.FloatValue);
+		
+		if (entity != -1)
+		{
+			iLight[client] = EntIndexToEntRef(entity);
+		}
 	}
 }

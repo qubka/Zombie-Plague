@@ -223,7 +223,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 
 		ZP_SetWeaponAnimation(client, ANIM_SHOOT);
 
-		delete hMineCreate[client]; /// Bugfix
+		delete hMineCreate[client];
 		hMineCreate[client] = CreateTimer(ZP_GetWeaponReload(gWeapon) - 0.1, Weapon_OnCreateMine, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	else
@@ -261,7 +261,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 			TR_GetEndPosition(vPosition);
 			TR_GetPlaneNormal(null, vAngle);
 
-			GetVectorAngles(vAngle, vAngle); vAngle[0] += 90.0; /// Bugfix for w_
+			GetVectorAngles(vAngle, vAngle); vAngle[0] += 90.0;
 
 			static char sModel[PLATFORM_LINE_LENGTH];
 			ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
@@ -290,7 +290,7 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 				
 				SDKHook(entity, SDKHook_UsePost, MineUseHook);
 				
-				vAngle[0] -= 90.0; /// Bugfix for beam
+				vAngle[0] -= 90.0;
 				TR_TraceRayFilter(vPosition, vAngle, MASK_SOLID, RayType_Infinite, PlayerFilter, entity);
 				
 				TR_GetEndPosition(vEndPosition);

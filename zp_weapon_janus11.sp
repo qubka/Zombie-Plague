@@ -163,6 +163,13 @@ void Weapon_OnThink(int client, int weapon, int iClip, int iAmmo, int iCounter, 
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextPrimaryAttack", MAX_FLOAT);
 	SetEntPropFloat(weapon, Prop_Send, "m_flNextSecondaryAttack", MAX_FLOAT);
 	
+	static float flApplyModeTime;
+	if ((flApplyModeTime = GetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime")) && flApplyModeTime <= GetGameTime())
+	{
+		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
+		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_ACTIVE);
+	}
+	
 	if (iClip == ZP_GetWeaponClip(gWeapon) || iAmmo <= 0)
 	{
 		if (iReloadMode == RELOAD_END)
@@ -327,7 +334,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iC
 
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-	if (GetVectorLength(vVelocity) <= 0.0)
+	if (GetVectorLength(vVelocity, true) <= 0.0)
 	{
 	}
 	else if (!(iFlags & FL_ONGROUND))
@@ -367,9 +374,7 @@ void Weapon_OnSecondaryAttack(int client, int weapon, int iClip, int iAmmo, int 
 		
 		ZP_SetWeaponAnimation(client, ANIM_CHANGE);        
 		ZP_SetPlayerAnimation(client, PLAYERANIMEVENT_FIRE_GUN_SECONDARY);
-		
-		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_ACTIVE);
-		
+
 		SetEntProp(weapon, Prop_Data, "m_iClip2", 0);
 		
 		flCurrentTime += WEAPON_SWITCH_TIME;

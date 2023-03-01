@@ -33,18 +33,6 @@ Handle hSDKCallIsBSPModel;
 Handle hSDKCallFireBullets;
 
 /**
- * Variables to store virtual SDK adresses.
- **/
-Address g_pSendTableCRC;
-Address pArmorValue; 
-Address pAccount; 
-Address pHealth; 
-Address pClip;
-Address pPrimary;
-Address pSecondary;
-/// TODO: Patch back on unload !!!
-
-/**
  * Variables to store dynamic SDK offsets.
  **/
 int Player_bSpotted;
@@ -53,6 +41,7 @@ int Player_flProgressBarStartTime;
 int Player_iProgressBarDuration;
 int Player_iBlockingUseActionInProgress;
 int Entity_flSimulationTime;
+
 int SendProp_iBits;
 
 int Animating_StudioHdr;
@@ -88,6 +77,18 @@ enum StudioAnimDesc
 
 // Tools Functions
 #include "zp/playerclasses/toolsfunctions.sp"
+ 
+/**
+ * Variables to store patching adresses.
+ **/
+PatchData pSendTable_Patch[6] = {
+	{"g_SendTableCRC", 1337}, /* We pass dummy value to break CRC and force server to send full tables update */
+	{"m_ArmorValue", 32},
+	{"m_iAccount", 32},
+	{"m_iHealth", 32},
+	{"m_iClip1", 32},
+	{"m_iPrimaryReserveAmmoCount", 32}
+};
 
 /**
  * @brief Tools module init function.
@@ -103,26 +104,13 @@ void ToolsOnInit()
 	fnInitSendPropOffset(Player_iBlockingUseActionInProgress, "CCSPlayer", "m_iBlockingUseActionInProgress");
 	fnInitSendPropOffset(Entity_flSimulationTime, "CBaseEntity", "m_flSimulationTime");
 
-	fnInitGameConfAddress(gServerData.Config, g_pSendTableCRC, "g_SendTableCRC", false);
-	
-	if (g_pSendTableCRC != Address_Null)
-	{
-		StoreToAddress(g_pSendTableCRC, 1337, NumberType_Int32);
+	fnInitGameConfOffset(gServerData.Config, SendProp_iBits, "m_nBits");
 
-		fnInitGameConfOffset(gServerData.Config, SendProp_iBits, "m_nBits");
-
-		ToolsPatchSendTable(gServerData.Config, pArmorValue, "m_ArmorValue", SendProp_iBits);
-		ToolsPatchSendTable(gServerData.Config, pAccount, "m_iAccount", SendProp_iBits);
-		ToolsPatchSendTable(gServerData.Config, pHealth, "m_iHealth", SendProp_iBits);
-		ToolsPatchSendTable(gServerData.Config, pClip, "m_iClip1", SendProp_iBits);
-		ToolsPatchSendTable(gServerData.Config, pPrimary, "m_iPrimaryReserveAmmoCount", SendProp_iBits);
-		ToolsPatchSendTable(gServerData.Config, pSecondary, "m_iSecondaryReserveAmmoCount", SendProp_iBits);
-	}
-	else
+	for (int i = 0; i < sizeof(pSendTable_Patch); i++)
 	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SendTableCRC Patch", "Not able to patch \"g_SendTableCRC\" with invalid address");
+		pSendTable_Patch[i].Patch(i != 0 ? SendProp_iBits : 0);
 	}
-	
+
 	/*__________________________________________________________________________________________________*/
 	
 	{
@@ -168,10 +156,10 @@ void ToolsOnInit()
 			 *  59                      pop    ecx
 			 *  5a                      pop    edx
 			 *  50                      push   eax
-			 *  b8 00 00 00 00          mov    eax,0x0
+			 *  b8 00 00 00 00          mov    eax, pFireBullets
 			 *  ff e0                   jmp    eax
 			 **/
-			char sTrampoline[] = "\x58\x59\x5A\x50\xB8\x00\x00\x00\x00\xFF\xE0";
+			char sTrampoline[] = "\x58\x59\x5A\x50\xB8\x00\x00\x00\x00\xFF\xE0"; /// __fastcall workaround
 		
 			Address pSignature;
 			fnInitGameConfAddress(gServerData.Config, pSignature, "FX_FireBullets");
@@ -233,9 +221,20 @@ void ToolsOnInit()
 	fnInitGameConfOffset(gServerData.Config, StudioHdrStruct_SequenceCount, "StudioHdrStruct::SequenceCount");
 	fnInitGameConfOffset(gServerData.Config, VirtualModelStruct_SequenceVector_Size, "VirtualModelStruct::SequenceVectorSize"); 
 
-	int iOffset_hLightingOrigin;
-	fnInitSendPropOffset(iOffset_hLightingOrigin, "CBaseAnimating", "m_hLightingOrigin");
-	Animating_StudioHdr += iOffset_hLightingOrigin;
+	int Animating_hLightingOrigin;
+	fnInitSendPropOffset(Animating_hLightingOrigin, "CBaseAnimating", "m_hLightingOrigin");
+	Animating_StudioHdr += Animating_hLightingOrigin;
+}
+
+/**
+ * @brief Restore patched memory.
+ **/
+void ToolsOnUnload() 
+{
+	for (int i = 0; i < sizeof(pSendTable_Patch); i++)
+	{
+		pSendTable_Patch[i].Unpatch(i != 0 ? SendProp_iBits : 0);
+	}
 }
 
 /**
@@ -316,12 +315,12 @@ public Action ToolsOnEntityTransmit(int entity, int client)
  **/
 void ToolsOnNativeInit()
 {
-	CreateNative("ZP_GetSequenceActivity",  API_GetSequenceActivity);
-	CreateNative("ZP_GetSequenceCount",     API_GetSequenceCount);
-	CreateNative("ZP_IsBSPModel",           API_IsBSPModel);
-	CreateNative("ZP_FireBullets",          API_FireBullets);
-	CreateNative("ZP_RespawnPlayer",        API_RespawnPlayer);
-	CreateNative("ZP_SetProgressBarTime",   API_SetProgressBarTime);
+	CreateNative("ZP_GetSequenceActivity", API_GetSequenceActivity);
+	CreateNative("ZP_GetSequenceCount",    API_GetSequenceCount);
+	CreateNative("ZP_IsBSPModel",          API_IsBSPModel);
+	CreateNative("ZP_FireBullets",         API_FireBullets);
+	CreateNative("ZP_RespawnPlayer",       API_RespawnPlayer);
+	CreateNative("ZP_SetProgressBarTime",  API_SetProgressBarTime);
 }
 
 /**
@@ -446,30 +445,4 @@ public int API_SetProgressBarTime(Handle hPlugin, int iNumParams)
 	
 	ToolsSetProgressBarTime(client, GetNativeCell(2));
 	return true;
-}
-
-/*
- * Stocks tools API.
- */
-
-/**
- * @brief Returns an address value from a given config.
- *
- * @param gameConf          The game config handle.
- * @param pAddress          An address to patch, or null on failure.
- * @param sKey              Key to retrieve from the address section.
- * @param bFatal            (Optional) If true, invalid values will stop the plugin with the specified message.
- **/
-void ToolsPatchSendTable(GameData gameConf, Address &pAddress, const char[] sKey, int iBits)
-{
-	fnInitGameConfAddress(gameConf, pAddress, sKey, false);
-	
-	if (pAddress != Address_Null) 
-	{
-		StoreToAddress(pAddress + view_as<Address>(iBits), 32, NumberType_Int32);
-	}
-	else
-	{
-		LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Tools, "SendTableCRC Patch", "Not able to patch \"%s\" with invalid address", sKey);
-	}
 }
