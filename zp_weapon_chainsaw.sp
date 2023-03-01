@@ -307,7 +307,7 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 			ZP_SetWeaponAnimation(client, ANIM_ATTACK_START);        
 
 			SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_ATTACK);
-			SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
+			SetEntPropFloat(weapon, Prop_Send, "m_flPostponeFireReadyTime", 0.0);
 
 			flCurrentTime += WEAPON_ATTACK_START_TIME;
 			
@@ -326,10 +326,10 @@ void Weapon_OnPrimaryAttack(int client, int weapon, int iClip, int iAmmo, int iS
 				return;
 			}
 
-			if (GetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime") < flCurrentTime)
+			if (GetEntPropFloat(weapon, Prop_Send, "m_flPostponeFireReadyTime") < flCurrentTime)
 			{
 				ZP_EmitSoundToAll(gSoundAttack, 1, client, SNDCHAN_WEAPON);
-				SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", flCurrentTime + WEAPON_ATTACK_SOUND_TIME);
+				SetEntPropFloat(weapon, Prop_Send, "m_flPostponeFireReadyTime", flCurrentTime + WEAPON_ATTACK_SOUND_TIME);
 			}
 			
 			flCurrentTime += ZP_GetWeaponShoot(gWeapon);
@@ -544,7 +544,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 	if (weaponID == gWeapon)
 	{
 		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoCount", STATE_BEGIN);
-		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
+		SetEntPropFloat(weapon, Prop_Send, "m_flPostponeFireReadyTime", 0.0);
 		SetEntPropFloat(weapon, Prop_Send, "m_flDoneSwitchingSilencer", 0.0);
 	}
 } 

@@ -1900,10 +1900,10 @@ void Weapon_OnPrimaryAttack(int client, int weapon, float flCurrentTime)
 
 void Weapon_OnSecondaryAttack(int client, int weapon, float flCurrentTime)
 {
-	float flAngle = GetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime") + 0.5;
+	float flAngle = GetEntPropFloat(weapon, Prop_Send, "m_flPostponeFireReadyTime") + 0.5;
 	if (flAngle > 360.0) flAngle = 0.0;
 	
-	SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", flAngle);
+	SetEntPropFloat(weapon, Prop_Send, "m_flPostponeFireReadyTime", flAngle);
 }
 
 void Weapon_OnCreateEffect(int client, int weapon, int iMode)
@@ -1976,7 +1976,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 				}
 			}
 
-			vAngle[1] += GetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime");
+			vAngle[1] += GetEntPropFloat(weapon, Prop_Send, "m_flPostponeFireReadyTime");
 			
 			TeleportEntity(entity, vPosition, vAngle, NULL_VECTOR);
 			
@@ -2151,7 +2151,7 @@ public void ZP_OnWeaponCreated(int weapon, int weaponID)
 		SetEntProp(weapon, Prop_Data, "m_iReloadHudHintCount", ZP_GetWeaponAmmunition(gWeapon));
 		SetEntProp(weapon, Prop_Data, "m_iAltFireHudHintCount", GetRandomInt(0, 1));
 		SetEntProp(weapon, Prop_Data, "m_iSecondaryAmmoType", SENTRY_MODE_NORMAL);
-		SetEntPropFloat(weapon, Prop_Data, "m_flDissolveStartTime", 0.0);
+		SetEntPropFloat(weapon, Prop_Send, "m_flPostponeFireReadyTime", 0.0);
 	}
 }   
 

@@ -139,7 +139,7 @@ void SoundsOnCacheData()
 				
 				if (iFormat == -1)
 				{
-					LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing file format: %s", sBuffer);
+					LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sound format: %s", sBuffer);
 					continue;
 				}
 				
@@ -150,22 +150,26 @@ void SoundsOnCacheData()
 					Format(sBuffer, sizeof(sBuffer), "*/%s", sBuffer);
 				}
 				
-				arraySound.PushString(sBuffer);                    // Index: i + 0
-				arraySound.Push(kvSounds.GetFloat("volume", 1.0)); // Index: i + 1
-				arraySound.Push(kvSounds.GetNum("level", 75));     // Index: i + 2
-				arraySound.Push(kvSounds.GetNum("flags", 0));      // Index: i + 3
-				arraySound.Push(kvSounds.GetNum("pitch", 0));      // Index: i + 4
-				
+				arraySound.PushString(sBuffer);                        // Index: i + 0
+				arraySound.Push(kvSounds.GetFloat("volume", 1.0));     // Index: i + 1
+				arraySound.Push(kvSounds.GetNum("level", 75));         // Index: i + 2
+				arraySound.Push(kvSounds.GetNum("flags", 0));          // Index: i + 3
+				arraySound.Push(kvSounds.GetNum("pitch", 100));        // Index: i + 4
+				float flDuration = kvSounds.GetFloat("duration", 0.0); // Index: i + 5
+
 				Format(sBuffer, sizeof(sBuffer), "sound/%s", sBuffer[bMP3 ? 2 : 0]);
 
-				if (SoundsPrecacheQuirk(sBuffer))
+				if (SoundsPrecacheQuirk(sBuffer) && !flDuration)
 				{
-					arraySound.Push(GetSoundDuration(sBuffer[6])); // Index: i + 5
+					flDuration = GetSoundDuration(sBuffer[6]);
 				}
-				else
+				
+				if (!flDuration)
 				{
-					arraySound.Push(0.0);                          // Index: i + 5
+					LogEvent(false, LogType_Error, LOG_CORE_EVENTS, LogModule_Sounds, "Config Validation", "Missing sound duration: %s", sBuffer);
 				}
+				
+				arraySound.Push(flDuration);                        
 			}
 			while (kvSounds.GotoNextKey());
 		}
