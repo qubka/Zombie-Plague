@@ -1024,21 +1024,15 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	public bool ValidTargetPlayer(int target, const float vStart[3], const float vEndPosition[3]) 
 	{
 		TR_TraceRayFilter(vStart, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TurretFilter, this.Index); 
-		
-		bool bHit;
-		if (!TR_DidHit() || TR_GetEntityIndex() == target) 
-		{ 
-			bHit = true; 
-		}
 
-		return bHit;
+		return TR_GetFraction() == 1.0;
 	} 
 	 
 	public void SelectTargetPoint(const float vStart[3], float vCenter[3]) 
 	{
 		GetCenterOrigin(this.Enemy, vCenter); 
 	 
-		TR_TraceRayFilter(vStart, vCenter, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TurretFilter, this.Index); 
+		TR_TraceRayFilter(vStart, vCenter, MASK_SOLID, RayType_EndPoint, TeamFilter, this.Index); 
 		
 		if (TR_DidHit()) 
 		{
@@ -1404,7 +1398,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		vEndPosition[1] += GetRandomFloat(-10.0, 10.0); 
 		vEndPosition[2] += GetRandomFloat(-10.0, 10.0); 
 		
-		TR_TraceRayFilter(vPosition, vEndPosition, (MASK_SHOT|CONTENTS_GRATE), RayType_EndPoint, TurretFilter, this.Index); 
+		TR_TraceRayFilter(vPosition, vEndPosition, MASK_SOLID, RayType_EndPoint, TeamFilter, this.Index); 
 
 		if (TR_DidHit())
 		{
@@ -2812,6 +2806,19 @@ public bool HullEnumerator(int entity, ArrayList hData)
  * @return                  True or false.
  **/
 public bool TurretFilter(int entity, int contentsMask, int filter)
+{
+	return false;
+}
+
+/**
+ * @brief Trace filter.
+ *
+ * @param entity            The entity index.  
+ * @param contentsMask      The contents mask.
+ * @param filter            The filter index.
+ * @return                  True or false.
+ **/
+public bool TeamFilter(int entity, int contentsMask, int filter)
 {
 	if (IsEntityTurret(entity)) 
 	{
