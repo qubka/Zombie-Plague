@@ -59,7 +59,7 @@ enum struct PatchData
 		if (this.addr != Address_Null) 
 		{
 			Address pDest = this.addr + view_as<Address>(iOffset);
-			StoreToAddress(pDest, this.prev, NumberType_Int32);
+			StoreToAddress(pDest, this.original, NumberType_Int32);
 			return true;
 		}
 		return false;
