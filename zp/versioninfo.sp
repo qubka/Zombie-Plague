@@ -32,12 +32,12 @@
 #define PLUGIN_VERSION      "1.2.1"
 #define PLUGIN_TAG          "zp"
 #define PLUGIN_CONFIG       "plugin.zombieplague"
-#define PLUGIN_AUTHOR       "qubka (Nikita Ushakov)"
+#define PLUGIN_AUTHOR       "qubka"
 #define PLUGIN_COPYRIGHT    "Copyright (C) 2015-2023 qubka (Nikita Ushakov)"
 #define PLUGIN_BRANCH       "master"
 #define PLUGIN_LINK         "https://forums.alliedmods.net/showthread.php?t=290657"
 #define PLUGIN_LICENSE      "GNU GPL, Version 3"
-#define PLUGIN_DATE         "23-February-2023T14:23:00-GMT+00:00"
+#define PLUGIN_DATE         "01-March-2023T00:24:31-GMT+00:00"
 /**
  * @endsection
  **/
