@@ -192,7 +192,7 @@ public Action SpawnOnClientSpawn(Event hEvent, char[] sName, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(hEvent.GetInt("userid"));
 
-	if (!IsClientValid(client))
+	if (!IsClientValid(client) || ToolsGetTeam(client) <= TEAM_SPECTATOR)
 	{
 		return Plugin_Continue;
 	}

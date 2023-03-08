@@ -384,15 +384,7 @@ public int MarketBuyMenuSlots1(Menu hMenu, MenuAction mAction, int client, int m
 					return 0;
 				}
 
-				if (MarketIsBuyTimeExpired(client) && (gClientData[client].Zombie && !gCvarList.MARKET_ZOMBIE_OPEN_ALL.BoolValue || !gClientData[client].Zombie && !gCvarList.MARKET_HUMAN_OPEN_ALL.BoolValue))
-				{
-					int iD[2]; iD = MenusCommandToArray("zmarket");
-					if (iD[0] != -1) SubMenu(client, iD[0]);
-				}
-				else
-				{
-					MarketMenu(client);
-				}
+				MarketMenu(client);
 			}
 		}
 		
@@ -554,8 +546,16 @@ int MarketBuyMenuSlots(Menu hMenu, MenuAction mAction, int client, int mSlot, bo
 				{
 					return 0;
 				}
-					
-				MarketMenu(client);
+				
+				if (MarketIsBuyTimeExpired(client) && (gClientData[client].Zombie && !gCvarList.MARKET_ZOMBIE_OPEN_ALL.BoolValue || !gClientData[client].Zombie && !gCvarList.MARKET_HUMAN_OPEN_ALL.BoolValue))
+				{
+					int iD[2]; iD = MenusCommandToArray("zmarket");
+					if (iD[0] != -1) SubMenu(client, iD[0]);
+				}
+				else
+				{
+					MarketMenu(client);
+				}
 			}
 		}
 		
