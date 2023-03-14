@@ -289,7 +289,7 @@ void MarketBuyMenu(int client, int iSection = MenuType_Buy, char[] sTitle = "mar
 			}
 
 			ItemsGetName(iD, sName, sizeof(sName));
-			int iCost = ItemsGetCost(iD);
+			int iPrice = ItemsGetPrice(iD);
 			int iLevel = ItemsGetLevel(iD);
 			int iLimit = ItemsGetLimit(iD);
 			int iOnline = ItemsGetOnline(iD);
@@ -319,17 +319,17 @@ void MarketBuyMenu(int client, int iSection = MenuType_Buy, char[] sTitle = "mar
 			{
 				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu online", iOnline);    
 			}
-			else if (gClientData[client].Money < iCost)
+			else if (gClientData[client].Money < iPrice)
 			{
-				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu price", iCost, "menu money");
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu price", iPrice, "menu money");
 			}
 			else if (iWeapon != -1 && WeaponsFindByID(client, iWeapon) != -1)
 			{
 				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu weapon");    
 			}
-			else if (iCost)
+			else if (iPrice)
 			{
-				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu price", iCost, "menu money");
+				FormatEx(sBuffer, sizeof(sBuffer), "%t  %t", sName, "menu price", iPrice, "menu money");
 				bEnabled = true;
 			}
 			else

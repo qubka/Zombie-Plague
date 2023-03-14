@@ -34,7 +34,7 @@ enum
 	EXTRAITEMS_DATA_NAME,
 	EXTRAITEMS_DATA_INFO,
 	EXTRAITEMS_DATA_WEAPON,
-	EXTRAITEMS_DATA_COST,
+	EXTRAITEMS_DATA_PRICE,
 	EXTRAITEMS_DATA_LEVEL,
 	EXTRAITEMS_DATA_ONLINE,
 	EXTRAITEMS_DATA_LIMIT,
@@ -186,7 +186,7 @@ void ExtraItemsOnCacheData()
 				arrayExtraItem.PushString(sBuffer);                    // Index: 2
 				kvExtraItems.GetString("weapon", sBuffer, sizeof(sBuffer), ""); 
 				arrayExtraItem.Push(WeaponsNameToIndex(sBuffer));      // Index: 3
-				arrayExtraItem.Push(kvExtraItems.GetNum("cost", 0));   // Index: 4
+				arrayExtraItem.Push(kvExtraItems.GetNum("price", 0));  // Index: 4
 				arrayExtraItem.Push(kvExtraItems.GetNum("level", 0));  // Index: 5
 				arrayExtraItem.Push(kvExtraItems.GetNum("online", 0)); // Index: 6
 				arrayExtraItem.Push(kvExtraItems.GetNum("limit", 0));  // Index: 7
@@ -241,7 +241,7 @@ void ExtraItemsOnNativeInit()
 	CreateNative("ZP_GetExtraItemName",        API_GetExtraItemName); 
 	CreateNative("ZP_GetExtraItemInfo",        API_GetExtraItemInfo); 
 	CreateNative("ZP_GetExtraItemWeaponID",    API_GetExtraItemWeaponID); 
-	CreateNative("ZP_GetExtraItemCost",        API_GetExtraItemCost); 
+	CreateNative("ZP_GetExtraItemPrice",       API_GetExtraItemPrice); 
 	CreateNative("ZP_GetExtraItemLevel",       API_GetExtraItemLevel); 
 	CreateNative("ZP_GetExtraItemOnline",      API_GetExtraItemOnline); 
 	CreateNative("ZP_GetExtraItemLimit",       API_GetExtraItemLimit); 
@@ -468,11 +468,11 @@ public int API_GetExtraItemWeaponID(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the cost of the extra item.
+ * @brief Gets the price of the extra item.
  *
- * @note native int ZP_GetExtraItemCost(iD);
+ * @note native int ZP_GetExtraItemPrice(iD);
  **/
-public int API_GetExtraItemCost(Handle hPlugin, int iNumParams)
+public int API_GetExtraItemPrice(Handle hPlugin, int iNumParams)
 {
 	int iD = GetNativeCell(1);
 	
@@ -482,7 +482,7 @@ public int API_GetExtraItemCost(Handle hPlugin, int iNumParams)
 		return -1;
 	}
 	
-	return ItemsGetCost(iD);
+	return ItemsGetPrice(iD);
 }
 
 /**
@@ -681,16 +681,16 @@ int ItemsGetWeaponID(int iD)
 }
 
 /**
- * @brief Gets the cost for the item.
+ * @brief Gets the price for the item.
  *
  * @param iD                The item index.
- * @return                  The cost amount.    
+ * @return                  The price value.    
  **/
-int ItemsGetCost(int iD)
+int ItemsGetPrice(int iD)
 {
 	ArrayList arrayExtraItem = gServerData.ExtraItems.Get(iD);
 
-	return arrayExtraItem.Get(EXTRAITEMS_DATA_COST);
+	return arrayExtraItem.Get(EXTRAITEMS_DATA_PRICE);
 }
 
 /**

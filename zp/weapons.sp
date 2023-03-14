@@ -58,6 +58,7 @@ enum
 	WEAPONS_DATA_CLIP,
 	WEAPONS_DATA_AMMO,
 	WEAPONS_DATA_AMMUNITION,
+	WEAPONS_DATA_PRICE,
 	WEAPONS_DATA_DROP,
 	WEAPONS_DATA_SHOOT,
 	WEAPONS_DATA_RELOAD,
@@ -70,9 +71,9 @@ enum
 	WEAPONS_DATA_MODEL_WORLD_ID,
 	WEAPONS_DATA_MODEL_DROP,
 	WEAPONS_DATA_MODEL_DROP_,
-	WEAPONS_DATA_MODEL_BODY = 28,
-	WEAPONS_DATA_MODEL_SKIN = 32,
-	WEAPONS_DATA_MODEL_MUZZLE = 36,
+	WEAPONS_DATA_MODEL_BODY = 29,
+	WEAPONS_DATA_MODEL_SKIN = 33,
+	WEAPONS_DATA_MODEL_MUZZLE = 37,
 	WEAPONS_DATA_MODEL_SHELL,
 	WEAPONS_DATA_MODEL_HEAT,
 	WEAPONS_DATA_SEQUENCE_COUNT,
@@ -208,47 +209,48 @@ void WeaponsOnCacheData()
 		arrayWeapon.Push(kvWeapons.GetNum("clip", 0));                    // Index: 13
 		arrayWeapon.Push(kvWeapons.GetNum("ammo", 0));                    // Index: 14
 		arrayWeapon.Push(kvWeapons.GetNum("ammunition", 0));              // Index: 15
-		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on")); // Index: 16
-		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));               // Index: 17
-		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));              // Index: 18
-		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));              // Index: 19
+		arrayWeapon.Push(kvWeapons.GetNum("price", -1));                  // Index: 16
+		arrayWeapon.Push(ConfigKvGetStringBool(kvWeapons, "drop", "on")); // Index: 17
+		arrayWeapon.Push(kvWeapons.GetFloat("shoot", 0.0));               // Index: 18
+		arrayWeapon.Push(kvWeapons.GetFloat("reload", 0.0));              // Index: 19
+		arrayWeapon.Push(kvWeapons.GetFloat("deploy", 0.0));              // Index: 20
 		kvWeapons.GetString("sound", sBuffer, sizeof(sBuffer), "");       
-		arrayWeapon.Push(SoundsKeyToIndex(sBuffer));                      // Index: 20
+		arrayWeapon.Push(SoundsKeyToIndex(sBuffer));                      // Index: 21
 		kvWeapons.GetString("icon", sBuffer, sizeof(sBuffer), "");        
-		arrayWeapon.PushString(sBuffer);                                  // Index: 21
+		arrayWeapon.PushString(sBuffer);                                  // Index: 22
 		if (hasLength(sBuffer))
 		{
 			Format(sBuffer, sizeof(sBuffer), "materials/panorama/images/icons/equipment/%s.svg", sBuffer);
 			if (FileExists(sBuffer)) AddFileToDownloadsTable(sBuffer); 
 		}
 		kvWeapons.GetString("view", sBuffer, sizeof(sBuffer), "");
-		arrayWeapon.PushString(sBuffer);                                  // Index: 22    
-		arrayWeapon.Push(DecryptPrecacheWeapon(sBuffer));                 // Index: 23
+		arrayWeapon.PushString(sBuffer);                                  // Index: 23  
+		arrayWeapon.Push(DecryptPrecacheWeapon(sBuffer));                 // Index: 24
 		kvWeapons.GetString("world", sBuffer, sizeof(sBuffer), "");       
-		arrayWeapon.PushString(sBuffer);                                  // Index: 24
-		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 25
+		arrayWeapon.PushString(sBuffer);                                  // Index: 25
+		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 26
 		kvWeapons.GetString("dropped", sBuffer, sizeof(sBuffer), "");     
-		arrayWeapon.PushString(sBuffer);                                  // Index: 26
-		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 27
+		arrayWeapon.PushString(sBuffer);                                  // Index: 27
+		arrayWeapon.Push(DecryptPrecacheModel(sBuffer));                  // Index: 28
 		int iBody[4]; kvWeapons.GetColor4("body", iBody);                 
 		for (int x = 0; x < 4; x++)
 		{
-			arrayWeapon.Push(iBody[x]);                                   // Index: 28+x
+			arrayWeapon.Push(iBody[x]);                                   // Index: 29+x
 		}
 		int iSkin[4]; kvWeapons.GetColor4("skin", iSkin);
 		for (int x = 0; x < 4; x++)
 		{
-			arrayWeapon.Push(iSkin[x]);                                   // Index: 32+x
+			arrayWeapon.Push(iSkin[x]);                                   // Index: 33+x
 		}
 		kvWeapons.GetString("muzzle", sBuffer, sizeof(sBuffer), "");
-		arrayWeapon.PushString(sBuffer);                                  // Index: 36
-		kvWeapons.GetString("shell", sBuffer, sizeof(sBuffer), "");       
 		arrayWeapon.PushString(sBuffer);                                  // Index: 37
-		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                // Index: 38
-		arrayWeapon.Push(-1);                                             // Index: 39
+		kvWeapons.GetString("shell", sBuffer, sizeof(sBuffer), "");       
+		arrayWeapon.PushString(sBuffer);                                  // Index: 38
+		arrayWeapon.Push(kvWeapons.GetFloat("heat", 0.5));                // Index: 39
+		arrayWeapon.Push(-1);                                             // Index: 40
 		/*for (int x = 0; x < WEAPONS_SEQUENCE_MAX; x++)
 		{
-			arrayWeapon.Push(-1);                                         // Index: 40+x
+			arrayWeapon.Push(-1);                                         // Index: 41+x
 		}*/          
 	}
 
@@ -577,6 +579,7 @@ void WeaponsOnNativeInit()
 	CreateNative("ZP_GetWeaponClip",         API_GetWeaponClip);
 	CreateNative("ZP_GetWeaponAmmo",         API_GetWeaponAmmo);
 	CreateNative("ZP_GetWeaponAmmunition",   API_GetWeaponAmmunition);
+	CreateNative("ZP_GetWeaponPrice",        API_GetWeaponPrice);
 	CreateNative("ZP_IsWeaponDrop",          API_IsWeaponDrop);
 	CreateNative("ZP_GetWeaponShoot",        API_GetWeaponShoot);
 	CreateNative("ZP_GetWeaponReload",       API_GetWeaponReload);
@@ -1035,7 +1038,7 @@ public int API_GetWeaponAmmo(Handle hPlugin, int iNumParams)
 }
 
 /**
- * @brief Gets the ammunition cost of the weapon.
+ * @brief Gets the ammunition price of the weapon.
  *
  * @note native int ZP_GetWeaponAmmunition(iD);
  **/
@@ -1050,6 +1053,24 @@ public int API_GetWeaponAmmunition(Handle hPlugin, int iNumParams)
 	}
 	
 	return WeaponsGetAmmunition(iD);
+}
+
+/**
+ * @brief Gets the price of the weapon.
+ *
+ * @note native int ZP_GetWeaponPrice(iD);
+ **/
+public int API_GetWeaponPrice(Handle hPlugin, int iNumParams)
+{
+	int iD = GetNativeCell(1);
+	
+	if (iD >= gServerData.Weapons.Length)
+	{
+		LogEvent(false, LogType_Native, LOG_CORE_EVENTS, LogModule_Weapons, "Native Validation", "Invalid the weapon index (%d)", iD);
+		return -1;
+	}
+	
+	return WeaponsGetPrice(iD);
 }
 
 /**
@@ -1642,16 +1663,29 @@ int WeaponsGetAmmo(int iD)
 }
 
 /**
- * @brief Gets the ammunition cost of the weapon.
+ * @brief Gets the ammunition price of the weapon.
  *
  * @param iD                The weapon id.
- * @return                  The ammunition cost.
+ * @return                  The ammunition price.
  **/
 int WeaponsGetAmmunition(int iD)
 {
 	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
 	
 	return arrayWeapon.Get(WEAPONS_DATA_AMMUNITION);
+}
+
+/**
+ * @brief Gets the price of the weapon.
+ *
+ * @param iD                The weapon id.
+ * @return                  The price value.
+ **/
+int WeaponsGetPrice(int iD)
+{
+	ArrayList arrayWeapon = gServerData.Weapons.Get(iD);
+	
+	return arrayWeapon.Get(WEAPONS_DATA_PRICE);
 }
 
 /**

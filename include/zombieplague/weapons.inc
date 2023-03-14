@@ -421,13 +421,22 @@ native int ZP_GetWeaponClip(int weaponID);
 native int ZP_GetWeaponAmmo(int weaponID);
 
 /**
- * @brief Gets the ammunition cost of the weapon.
+ * @brief Gets the ammunition price of the weapon.
  * 
  * @param weaponID          The weapon ID.
  *
- * @return                  The ammunition cost.    
+ * @return                  The ammunition price.    
  **/
 native int ZP_GetWeaponAmmunition(int weaponID);
+
+/**
+ * @brief Gets the price of the weapon.
+ * 
+ * @param weaponID          The weapon ID.
+ *
+ * @return                  The price value.    
+ **/
+native int ZP_GetWeaponPrice(int weaponID);
 
 /**
  * @brief Checks the drop state of the weapon.

@@ -206,7 +206,34 @@ public Action MarketOnClientBuyMenu(Handle hTimer, int userID)
 }
 
 /**
- * @brief Called when a player attempts to purchase an item.
+ * @brief Called when a player attempts to get a weapon price.
+ * 
+ * @param client            The client index.
+ * @param sClassname        The weapon entity.
+ * @param iPrice            The weapon price.
+ **/
+public Action CS_OnGetWeaponPrice(int client, const char[] sClassname, int& iPrice)
+{
+	if (gCvarList.MARKET_BUYMENU.BoolValue)
+	{
+		ItemDef iItem = WeaponsGetItemDefIndex(sClassname);
+		
+		int iD = WeaponsDefToIndex(iItem);
+		if (iD != -1)
+		{
+			iPrice = WeaponsGetPrice(iD);
+			if (iPrice != -1)
+			{
+				return Plugin_Changed;
+			}
+		}
+	}
+	
+	return Plugin_Continue;
+}
+
+/**
+ * @brief Called when a player attempts to purchase a weapon.
  * 
  * @param client            The client index.
  * @param sClassname        The weapon entity.
@@ -220,11 +247,11 @@ public Action CS_OnBuyCommand(int client, const char[] sClassname)
 		int iD = WeaponsDefToIndex(iItem);
 		if (iD != -1 && WeaponsHasAccessByType(client, iD))
 		{
-			int iCost = CS_GetWeaponPrice(client, CS_ItemDefIndexToID(view_as<int>(iItem)));
-			if (iCost)
+			int iPrice = CS_GetWeaponPrice(client, CS_ItemDefIndexToID(view_as<int>(iItem)));
+			if (iPrice)
 			{
-				AccountSetClientCash(client, gClientData[client].Money - iCost);
-				gClientData[client].LastPurchase += iCost;
+				AccountSetClientCash(client, gClientData[client].Money - iPrice);
+				gClientData[client].LastPurchase += iPrice;
 			}
 			
 			WeaponsGive(client, iD);
@@ -307,11 +334,11 @@ bool MarketBuyItem(int client, int iD, bool bInfo = true)
 	
 	EmitSoundToClient(client, SOUND_BUY_ITEM, SOUND_FROM_PLAYER, SNDCHAN_ITEM);    
 
-	int iCost = ItemsGetCost(iD);
-	if (iCost)
+	int iPrice = ItemsGetPrice(iD);
+	if (iPrice)
 	{
-		AccountSetClientCash(client, gClientData[client].Money - iCost);
-		gClientData[client].LastPurchase += iCost;
+		AccountSetClientCash(client, gClientData[client].Money - iPrice);
+		gClientData[client].LastPurchase += iPrice;
 	}
 	
 	if (ItemsGetLimit(iD))
@@ -366,8 +393,8 @@ bool MarketIsItemAvailable(int client, int iD)
 		return false;
 	}
 
-	int iCost = ItemsGetCost(iD);
-	if (iCost && gClientData[client].Money < iCost)
+	int iPrice = ItemsGetPrice(iD);
+	if (iPrice && gClientData[client].Money < iPrice)
 	{
 		return false;
 	}

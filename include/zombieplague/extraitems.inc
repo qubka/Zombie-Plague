@@ -133,13 +133,13 @@ native void ZP_GetExtraItemInfo(int itemID, char[] info, int maxlenght = 32);
 native int ZP_GetExtraItemWeaponID(int itemID);
 
 /**
- * @brief Gets the cost of the extra item.
+ * @brief Gets the price of the extra item.
  * 
  * @param itemID            The item index.
  *
- * @return                  The cost amount.    
+ * @return                  The price value.    
  **/
-native int ZP_GetExtraItemCost(int itemID);
+native int ZP_GetExtraItemPrice(int itemID);
 
 /**
  * @brief Gets the level of the extra item.

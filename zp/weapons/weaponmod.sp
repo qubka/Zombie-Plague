@@ -1415,13 +1415,13 @@ void WeaponMODOnClientBuyammo(int client)
 		int iD = WeaponsGetCustomID(weapon);
 		if (iD != -1)
 		{
-			int iCost = WeaponsGetAmmunition(iD);
-			if (!iCost)
+			int iPrice = WeaponsGetAmmunition(iD);
+			if (!iPrice)
 			{
 				return;
 			}
 			
-			if (gClientData[client].Money < iCost)
+			if (gClientData[client].Money < iPrice)
 			{
 				TranslationPrintHintText(client, true, "block buying ammunition");
 				
@@ -1438,7 +1438,7 @@ void WeaponMODOnClientBuyammo(int client)
 
 				WeaponsSetReserveAmmo(weapon, (iAmmo <= iMaxAmmo) ? iAmmo : iMaxAmmo);
 
-				AccountSetClientCash(client, gClientData[client].Money - iCost);
+				AccountSetClientCash(client, gClientData[client].Money - iPrice);
 
 				EmitSoundToClient(client, SOUND_AMMO, SOUND_FROM_PLAYER, SNDCHAN_ITEM);
 			}
