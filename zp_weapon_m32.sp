@@ -50,6 +50,7 @@ public Plugin myinfo =
 #define WEAPON_INSERT_TIME       0.86
 #define WEAPON_INSERT_START_TIME 0.7
 #define WEAPON_INSERT_END_TIME   0.63
+#define WEAPON_ROCKET_MODEL     "models/weapons/cso/m32/w_m32_projectile.mdl"
 /**
  * @endsection
  **/
@@ -374,7 +375,7 @@ void Weapon_OnCreateGrenade(int client)
 
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-	int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/weapons/cso/m32/w_m32_projectile.mdl");
+	int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, WEAPON_ROCKET_MODEL);
 
 	if (entity != -1)
 	{

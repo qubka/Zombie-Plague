@@ -102,6 +102,25 @@ int AnimatingOverlay_Count;
  * @endsection
  **/
 
+#define SENTRY_MODEL_LEVEL_1         "models/buildables/sentry1.mdl";
+#define SENTRY_MODEL_LEVEL_1_UPGRADE "models/buildables/sentry1_heavy.mdl"
+#define SENTRY_MODEL_LEVEL_2         "models/buildables/sentry2.mdl"
+#define SENTRY_MODEL_LEVEL_2_UPGRADE "models/buildables/sentry2_heavy.mdl"
+#define SENTRY_MODEL_LEVEL_3         "models/buildables/sentry3_fix2.mdl"
+#define SENTRY_MODEL_LEVEL_3_UPGRADE "models/buildables/sentry3_heavy.mdl"
+#define SENTRY_ROCKET_MODEL          "models/buildables/sentry3_rockets.mdl"
+#define SENTRY_BLUEPRINT_MODEL       "models/buildables/sentry1_blueprint.mdl"
+
+#define SENTRY_MODEL_LEVEL_1_GIB_1 "models/buildables/gibs/sentry1_gib1.mdl"
+#define SENTRY_MODEL_LEVEL_1_GIB_2 "models/buildables/gibs/sentry1_gib2.mdl"
+#define SENTRY_MODEL_LEVEL_1_GIB_3 "models/buildables/gibs/sentry1_gib3.mdl"
+#define SENTRY_MODEL_LEVEL_1_GIB_4 "models/buildables/gibs/sentry1_gib4.mdl"
+#define SENTRY_MODEL_LEVEL_2_GIB_1 "models/buildables/gibs/sentry2_gib1.mdl"
+#define SENTRY_MODEL_LEVEL_2_GIB_2 "models/buildables/gibs/sentry2_gib2.mdl"
+#define SENTRY_MODEL_LEVEL_2_GIB_3 "models/buildables/gibs/sentry2_gib3.mdl"
+#define SENTRY_MODEL_LEVEL_2_GIB_4 "models/buildables/gibs/sentry2_gib4.mdl"
+#define SENTRY_MODEL_LEVEL_3_GIB_1 "models/buildables/gibs/sentry3_gib1.mdl"
+
 /**
  * @section Sentry states.
  **/ 
@@ -349,6 +368,7 @@ public void OnMapStart()
 	gTrail = PrecacheModel("materials/sprites/laserbeam.vmt", true);
 	PrecacheModel("materials/sprites/xfireball3.vmt", true); /// for env_explosion
 	PrecacheModel("models/props_office/file_cabinet_03.mdl", true);
+	PrecacheModel("models/weapons/w_eq_fraggrenade_dropped.mdl", true);
 	
 	PrecacheSound("survival/turret_death_01.wav", true);
 	PrecacheSound("survival/turret_takesdamage_01.wav", true);
@@ -478,7 +498,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 {
 	public SentryGun(int owner, const float vPosition[3], const float vAngle[3], int iHealth, int iAmmo, int iRocket, int iSkin, int iLevel) 
 	{
-		int entity = UTIL_CreateMonster("turret_npc", vPosition, vAngle, "models/buildables/sentry1.mdl", NPC_GAG | NPC_WAITFORSCRIPT | NPC_DONTDROPWEAPONS | NPC_IGNOREPLAYERPUSH);
+		int entity = UTIL_CreateMonster("turret_npc", vPosition, vAngle, SENTRY_MODEL_LEVEL_1, NPC_GAG | NPC_WAITFORSCRIPT | NPC_DONTDROPWEAPONS | NPC_IGNOREPLAYERPUSH);
 		
 		if (entity != -1)
 		{
@@ -532,7 +552,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			AcceptEntityInput(entity, "DisableReceivingFlashlight");
 
 			//vPosition[2] -= 35.0;
-			int upgrade = UTIL_CreateDynamic("upgrade", vPosition, vAngle, "models/buildables/sentry1_heavy.mdl", "build");
+			int upgrade = UTIL_CreateDynamic("upgrade", vPosition, vAngle, SENTRY_MODEL_LEVEL_1_UPGRADE, "build");
 
 			if (upgrade != -1)
 			{
@@ -1315,7 +1335,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	{
 		static char sBuffer[SMALL_LINE_LENGTH];
 	
-		int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
+		int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/weapons/w_eq_fraggrenade_dropped.mdl");
 
 		if (entity != -1)
 		{
@@ -1326,7 +1346,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			
 			SetEntPropString(entity, Prop_Data, "m_iGlobalname", "rocket");
 
-			int rocket = UTIL_CreateDynamic("rocket", NULL_VECTOR, NULL_VECTOR, "models/buildables/sentry3_rockets.mdl", "idle", false);
+			int rocket = UTIL_CreateDynamic("rocket", NULL_VECTOR, NULL_VECTOR, SENTRY_ROCKET_MODEL, "idle", false);
 
 			if (rocket != -1)
 			{
@@ -1549,14 +1569,11 @@ methodmap SentryGun /** Regards to Pelipoika **/
 	
 	public void Upgrade()
 	{
-		static char sModel[PLATFORM_LINE_LENGTH];
-		switch (this.UpgradeLevel)
+		if (this.UpgradeLevel == SENTRY_MODE_ROCKET)
 		{
-			case SENTRY_MODE_NORMAL :    strcopy(sModel, sizeof(sModel), "models/buildables/sentry2_heavy.mdl");
-			case SENTRY_MODE_AGRESSIVE : strcopy(sModel, sizeof(sModel), "models/buildables/sentry3_heavy.mdl");
-			case SENTRY_MODE_ROCKET :    return;
-		} 
-		
+			return;
+		}
+
 		SDKUnhook(this.Index, SDKHook_ThinkPost, SentryThinkHook);
 		
 		int iYaw = this.LookupPoseParameter("aim_yaw"); 
@@ -1568,7 +1585,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		static float vAngle[3]; 
 		this.GetAbsAngles(vAngle);
 
-		int upgrade = UTIL_CreateDynamic("upgrade", vPosition, vAngle, sModel, "upgrade");
+		int upgrade = UTIL_CreateDynamic("upgrade", vPosition, vAngle, this.UpgradeLevel ? SENTRY_MODEL_LEVEL_3_UPGRADE : SENTRY_MODEL_LEVEL_2_UPGRADE, "upgrade");
 
 		if (upgrade != -1)
 		{
@@ -1591,13 +1608,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		this.UpgradeLevel++;
 		this.Lock = true;
 
-		switch (this.UpgradeLevel)
-		{
-			case SENTRY_MODE_AGRESSIVE : strcopy(sModel, sizeof(sModel), "models/buildables/sentry2.mdl");
-			case SENTRY_MODE_ROCKET :    strcopy(sModel, sizeof(sModel), "models/buildables/sentry3_fix2.mdl");
-		}
-		
-		SetEntityModel(this.Index, sModel);
+		SetEntityModel(this.Index, this.UpgradeLevel == SENTRY_MODE_ROCKET ? SENTRY_MODEL_LEVEL_3 : SENTRY_MODEL_LEVEL_2);
 
 		UTIL_SetRenderColor(this.Index, Color_Alpha, 0);
 		//AcceptEntityInput(this.Index, "DisableDraw"); 
@@ -1740,7 +1751,7 @@ methodmap SentryGun /** Regards to Pelipoika **/
 			}
 		}
 	}
-	
+
 	public void Death()
 	{
 		static float vPosition[3]; static float vGib[3]; float vShoot[3];
@@ -1756,19 +1767,17 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		{
 			UTIL_CreateParticle(this.Index, vPosition, _, _, sEffect, 0.2);
 		}
-		
-		static char sBuffer[NORMAL_LINE_LENGTH];
-		for (int x = 0; x <= 3; x++)
-		{
-			vShoot[1] += 90.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch (x)
-			{
-				case 0 : strcopy(sBuffer, sizeof(sBuffer), (this.UpgradeLevel == SENTRY_MODE_ROCKET) ? "models/buildables/gibs/sentry3_gib1.mdl" : (this.UpgradeLevel ? "models/buildables/gibs/sentry2_gib1.mdl" : "models/buildables/gibs/sentry1_gib1.mdl"));
-				case 1 : strcopy(sBuffer, sizeof(sBuffer), this.UpgradeLevel ? "models/buildables/gibs/sentry2_gib2.mdl" : "models/buildables/gibs/sentry1_gib2.mdl");
-				case 2 : strcopy(sBuffer, sizeof(sBuffer), this.UpgradeLevel ? "models/buildables/gibs/sentry2_gib3.mdl" : "models/buildables/gibs/sentry1_gib3.mdl");
-				case 3 : strcopy(sBuffer, sizeof(sBuffer), this.UpgradeLevel ? "models/buildables/gibs/sentry2_gib4.mdl" : "models/buildables/gibs/sentry1_gib4.mdl");
-			}
 
-			UTIL_CreateShooter(this.Index, "build_point_0", _, MAT_METAL, this.Skin, sBuffer, vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+		for (int x = 1; x <= 4; x++)
+		{
+			vShoot[1] += 90.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); 
+			switch (x)
+			{
+				case 1 : UTIL_CreateShooter(this.Index, "build_point_0", _, MAT_METAL, this.Skin, (this.UpgradeLevel == SENTRY_MODE_ROCKET) ? SENTRY_MODEL_LEVEL_3_GIB_1 : (this.UpgradeLevel ? SENTRY_MODEL_LEVEL_2_GIB_1 : SENTRY_MODEL_LEVEL_1_GIB_1), vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+				case 2 : UTIL_CreateShooter(this.Index, "build_point_0", _, MAT_METAL, this.Skin, this.UpgradeLevel ? SENTRY_MODEL_LEVEL_2_GIB_2 : SENTRY_MODEL_LEVEL_1_GIB_2, vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+				case 3 : UTIL_CreateShooter(this.Index, "build_point_0", _, MAT_METAL, this.Skin, this.UpgradeLevel ? SENTRY_MODEL_LEVEL_2_GIB_3 : SENTRY_MODEL_LEVEL_1_GIB_3, vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+				case 4 : UTIL_CreateShooter(this.Index, "build_point_0", _, MAT_METAL, this.Skin, this.UpgradeLevel ? SENTRY_MODEL_LEVEL_2_GIB_4 : SENTRY_MODEL_LEVEL_1_GIB_4, vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+			}
 		}
 
 		UTIL_RemoveEntity(this.Index, 0.1);
@@ -1890,7 +1899,7 @@ void Weapon_OnCreateEffect(int client, int weapon, int iMode)
 				return;
 			}
 		
-			entity = UTIL_CreateDynamic("plan", NULL_VECTOR, NULL_VECTOR, "models/buildables/sentry1_blueprint.mdl", "reject");
+			entity = UTIL_CreateDynamic("plan", NULL_VECTOR, NULL_VECTOR, SENTRY_BLUEPRINT_MODEL, "reject");
 			
 			if (entity != -1)
 			{

@@ -45,8 +45,9 @@ public Plugin myinfo =
 /**
  * @section Information about the weapon.
  **/
-#define WEAPON_ATTACK_TIME 1.0
-#define WEAPON_IDLE_TIME   1.66
+#define WEAPON_ATTACK_TIME  1.0
+#define WEAPON_IDLE_TIME    1.66
+#defien WEAPON_ROCKET_MODEL "models/weapons/cso/drillgun/w_drillgun_projectile.mdl"
 /**
  * @endsection
  **/
@@ -275,7 +276,7 @@ void Weapon_OnCreateBow(int client)
 
 	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vVelocity);
 
-	int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, "models/weapons/cso/drillgun/w_drillgun_projectile.mdl");
+	int entity = UTIL_CreateProjectile(vPosition, vAngle, gWeapon, WEAPON_ROCKET_MODEL);
 
 	if (entity != -1)
 	{

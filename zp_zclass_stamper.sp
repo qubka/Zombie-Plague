@@ -43,6 +43,14 @@ public Plugin myinfo =
 }
 
 /**
+ * @section Information about the class.
+ **/
+#define CLASS_COFFIN_MODEL "models/player/custom_player/zombie/zombiepile/zombiepile.mdl"
+/**
+ * @endsection
+ **/
+ 
+/**
  * @section Properties of the gibs shooter.
  **/
 #define WOOD_GIBS_AMOUNT   5.0
@@ -146,7 +154,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		GetClientEyeAngles(client, vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
 		GetOriginDistance(client, vAngle, 40.0, 0.0, 38.451633, vPosition);
 
-		int entity = UTIL_CreatePhysics("coffin", vPosition, vAngle, "models/player/custom_player/zombie/zombiepile/zombiepile.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
+		int entity = UTIL_CreatePhysics("coffin", vPosition, vAngle, CLASS_COFFIN_MODEL, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
 
 		if (entity != -1)
 		{
@@ -336,20 +344,18 @@ void CoffinExpload(int entity)
 	}
 	
 	ZP_EmitSoundToAll(gSound, 4, entity, SNDCHAN_STATIC);
-	
-	static char sBuffer[NORMAL_LINE_LENGTH];
-	for (int x = 0; x <= 4; x++)
+
+	for (int x = 1; x <= 5; x++)
 	{
-		vShoot[1] += 72.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch (x)
+		vShoot[1] += 72.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); 
+		switch (x)
 		{
-			case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/wood_gib01a.mdl");
-			case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/wood_gib01b.mdl");
-			case 2 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/wood_gib01c.mdl");
-			case 3 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/wood_gib01d.mdl");
-			case 4 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/wood_gib01e.mdl");
+			case 1 : UTIL_CreateShooter(entity, "1", _, MAT_WOOD, _, "models/gibs/wood_gib01a.mdl", vShoot, vGib, WOOD_GIBS_AMOUNT, WOOD_GIBS_DELAY, WOOD_GIBS_SPEED, WOOD_GIBS_VARIENCE, WOOD_GIBS_LIFE, WOOD_GIBS_DURATION);
+			case 2 : UTIL_CreateShooter(entity, "1", _, MAT_WOOD, _, "models/gibs/wood_gib01b.mdl", vShoot, vGib, WOOD_GIBS_AMOUNT, WOOD_GIBS_DELAY, WOOD_GIBS_SPEED, WOOD_GIBS_VARIENCE, WOOD_GIBS_LIFE, WOOD_GIBS_DURATION);
+			case 3 : UTIL_CreateShooter(entity, "1", _, MAT_WOOD, _, "models/gibs/wood_gib01c.mdl", vShoot, vGib, WOOD_GIBS_AMOUNT, WOOD_GIBS_DELAY, WOOD_GIBS_SPEED, WOOD_GIBS_VARIENCE, WOOD_GIBS_LIFE, WOOD_GIBS_DURATION);
+			case 4 : UTIL_CreateShooter(entity, "1", _, MAT_WOOD, _, "models/gibs/wood_gib01d.mdl", vShoot, vGib, WOOD_GIBS_AMOUNT, WOOD_GIBS_DELAY, WOOD_GIBS_SPEED, WOOD_GIBS_VARIENCE, WOOD_GIBS_LIFE, WOOD_GIBS_DURATION);
+			case 5 : UTIL_CreateShooter(entity, "1", _, MAT_WOOD, _, "models/gibs/wood_gib01e.mdl", vShoot, vGib, WOOD_GIBS_AMOUNT, WOOD_GIBS_DELAY, WOOD_GIBS_SPEED, WOOD_GIBS_VARIENCE, WOOD_GIBS_LIFE, WOOD_GIBS_DURATION);
 		}
-	
-		UTIL_CreateShooter(entity, "1", _, MAT_WOOD, _, sBuffer, vShoot, vGib, WOOD_GIBS_AMOUNT, WOOD_GIBS_DELAY, WOOD_GIBS_SPEED, WOOD_GIBS_VARIENCE, WOOD_GIBS_LIFE, WOOD_GIBS_DURATION);
 	}
 
 	UTIL_RemoveEntity(entity, 0.1);

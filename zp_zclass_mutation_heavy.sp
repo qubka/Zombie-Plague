@@ -42,6 +42,15 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
+/**
+ * @section Information about the class.
+ **/
+#define CLASS_TRAP_MODEL    "models/player/custom_player/zombie/zombie_trap/trap.mdl"
+#define CLASS_TRIGGER_MODEL "models/player/custom_player/zombie/ice/ice.mdl"
+/**
+ * @endsection
+ **/
+ 
 // Timer index
 Handle hHumanTrapped[MAXPLAYERS+1] = { null, ... }; bool bStandOnTrap[MAXPLAYERS+1];
 
@@ -182,7 +191,7 @@ public void ZP_OnClientSkillOver(int client)
 		GetEntPropVector(client, Prop_Data, "m_vecAbsOrigin", vPosition);
 		GetClientEyeAngles(client, vAngle); vAngle[0] = vAngle[2] = 0.0; /// Only pitch
 
-		int entity = UTIL_CreatePhysics("trap", vPosition, vAngle, "models/player/custom_player/zombie/ice/ice.mdl", PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
+		int entity = UTIL_CreatePhysics("trap", vPosition, vAngle, CLASS_TRIGGER_MODEL, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR);
 
 		if (entity != -1)
 		{
@@ -192,7 +201,7 @@ public void ZP_OnClientSkillOver(int client)
 			
 			SetEntProp(entity, Prop_Data, "m_takedamage", DAMAGE_NO);
 
-			int trap = UTIL_CreateDynamic("trap", vPosition, vAngle, "models/player/custom_player/zombie/zombie_trap/trap.mdl", "idle", false);
+			int trap = UTIL_CreateDynamic("trap", vPosition, vAngle, CLASS_TRAP_MODEL, "idle", false);
 			
 			if (trap != -1)
 			{

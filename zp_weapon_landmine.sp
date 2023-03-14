@@ -689,20 +689,18 @@ void MineExpload(int entity, bool bRemove = false)
 		case 4 : EmitSoundToAll("survival/missile_land_05.wav", entity, SNDCHAN_STATIC);
 		case 5 : EmitSoundToAll("survival/missile_land_06.wav", entity, SNDCHAN_STATIC);
 	}
-	
-	static char sBuffer[NORMAL_LINE_LENGTH];
-	for (int x = 0; x <= 4; x++)
+
+	for (int x = 1; x <= 5; x++)
 	{
-		vShoot[1] += 72.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch (x)
+		vShoot[1] += 72.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); 
+		switch (x)
 		{
-			case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib1.mdl");
-			case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib2.mdl");
-			case 2 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib3.mdl");
-			case 3 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib4.mdl");
-			case 4 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/metal_gib5.mdl");
+			case 1 : UTIL_CreateShooter(entity, "weapon_hand_R", _, MAT_METAL, _, "models/gibs/metal_gib1.mdl", vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+			case 2 : UTIL_CreateShooter(entity, "weapon_hand_R", _, MAT_METAL, _, "models/gibs/metal_gib2.mdl", vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+			case 3 : UTIL_CreateShooter(entity, "weapon_hand_R", _, MAT_METAL, _, "models/gibs/metal_gib3.mdl", vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+			case 4 : UTIL_CreateShooter(entity, "weapon_hand_R", _, MAT_METAL, _, "models/gibs/metal_gib4.mdl", vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
+			case 5 : UTIL_CreateShooter(entity, "weapon_hand_R", _, MAT_METAL, _, "models/gibs/metal_gib5.mdl", vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
 		}
-		
-		UTIL_CreateShooter(entity, "weapon_hand_R", _, MAT_METAL, _, sBuffer, vShoot, vGib, METAL_GIBS_AMOUNT, METAL_GIBS_DELAY, METAL_GIBS_SPEED, METAL_GIBS_VARIENCE, METAL_GIBS_LIFE, METAL_GIBS_DURATION);
 	}
 
 	UTIL_RemoveEntity(entity, 0.1);

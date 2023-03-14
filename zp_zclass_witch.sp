@@ -42,6 +42,14 @@ public Plugin myinfo =
 	url             = "https://forums.alliedmods.net/showthread.php?t=290657"
 }
 
+/**
+ * @section Information about the class.
+ **/
+#define CLASS_BATS_MODEL "models/player/custom_player/zombie/bats/bats2.mdl"
+/**
+ * @endsection
+ **/
+
 // Decal index
 int gSmoke;
 
@@ -103,6 +111,7 @@ public void ZP_OnEngineExecute()
 public void OnMapStart()
 {
 	gSmoke = PrecacheModel("sprites/steam1.vmt", true);
+	PrecacheModel("models/weapons/w_eq_fraggrenade_dropped.mdl", true);
 }
 
 /**
@@ -127,7 +136,7 @@ public Action ZP_OnClientSkillUsed(int client)
 		
 		ZP_EmitSoundToAll(gSound, 1, client, SNDCHAN_VOICE);
 		
-		int entity = UTIL_CreateProjectile(vPosition, vAngle, _, "models/weapons/cso/bazooka/w_bazooka_projectile.mdl");
+		int entity = UTIL_CreateProjectile(vPosition, vAngle, _, "models/weapons/w_eq_fraggrenade_dropped.mdl");
 
 		if (entity != -1)
 		{
@@ -146,7 +155,7 @@ public Action ZP_OnClientSkillUsed(int client)
 			AcceptEntityInput(entity, "DisableDraw"); 
 			AcceptEntityInput(entity, "DisableShadow"); 
 			
-			int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly", false);
+			int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, CLASS_BATS_MODEL, "fly", false);
 
 			if (bat != -1)
 			{
@@ -195,7 +204,7 @@ public Action BatTouchHook(int entity, int target)
 
 		if (IsClientValid(target))
 		{
-			int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, "models/player/custom_player/zombie/bats/bats2.mdl", "fly2", false);
+			int bat = UTIL_CreateDynamic("bats", NULL_VECTOR, NULL_VECTOR, CLASS_BATS_MODEL, "fly2", false);
 
 			if (bat != -1)
 			{

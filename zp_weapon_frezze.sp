@@ -46,6 +46,7 @@ public Plugin myinfo =
  * @section Information about the weapon.
  **/
 #define WEAPON_BEAM_COLOR {75, 75, 255, 255}
+#defien WEAPON_ICE_MODEL  "models/player/custom_player/zombie/ice/ice.mdl"
 /**
  * @endsection
  **/
@@ -62,7 +63,7 @@ public Plugin myinfo =
 /**
  * @endsection
  **/
- 
+
 // Timer index
 Handle hZombieFreezed[MAXPLAYERS+1] = { null, ... }; 
 
@@ -281,7 +282,7 @@ public Action EventEntitySmoke(Event hEvent, char[] sName, bool dontBroadcast)
 
 				vAngle[1] = GetRandomFloat(0.0, 360.0);
 	   
-				int ice = UTIL_CreateDynamic("ice", vPosition2, vAngle, "models/player/custom_player/zombie/ice/ice.mdl", "idle");
+				int ice = UTIL_CreateDynamic("ice", vPosition2, vAngle, WEAPON_ICE_MODEL, "idle");
 
 				if (ice != -1)
 				{
@@ -340,20 +341,18 @@ public Action ClientRemoveFreeze(Handle hTimer, int userID)
 		
 		ZP_EmitSoundToAll(gSound, 2, client, SNDCHAN_VOICE);
 
-		static char sBuffer[NORMAL_LINE_LENGTH];
-		for (int x = 0; x <= 5; x++)
+		for (int x = 1; x <= 6; x++)
 		{
-			vShoot[1] += 60.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); switch (x)
+			vShoot[1] += 60.0; vGib[0] = GetRandomFloat(0.0, 360.0); vGib[1] = GetRandomFloat(-15.0, 15.0); vGib[2] = GetRandomFloat(-15.0, 15.0); 
+			switch (x)
 			{
-				case 0 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard01.mdl");
-				case 1 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard02.mdl");
-				case 2 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard03.mdl");
-				case 3 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard04.mdl");
-				case 4 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard05.mdl");
-				case 5 : strcopy(sBuffer, sizeof(sBuffer), "models/gibs/glass_shard06.mdl");
+				case 1 : UTIL_CreateShooter(client, "eholster", _, MAT_GLASS, _, "models/gibs/glass_shard01.mdl", vShoot, vGib, GLASS_GIBS_AMOUNT, GLASS_GIBS_DELAY, GLASS_GIBS_SPEED, GLASS_GIBS_VARIENCE, GLASS_GIBS_LIFE, GLASS_GIBS_DURATION);
+				case 2 : UTIL_CreateShooter(client, "eholster", _, MAT_GLASS, _, "models/gibs/glass_shard02.mdl", vShoot, vGib, GLASS_GIBS_AMOUNT, GLASS_GIBS_DELAY, GLASS_GIBS_SPEED, GLASS_GIBS_VARIENCE, GLASS_GIBS_LIFE, GLASS_GIBS_DURATION);
+				case 3 : UTIL_CreateShooter(client, "eholster", _, MAT_GLASS, _, "models/gibs/glass_shard03.mdl", vShoot, vGib, GLASS_GIBS_AMOUNT, GLASS_GIBS_DELAY, GLASS_GIBS_SPEED, GLASS_GIBS_VARIENCE, GLASS_GIBS_LIFE, GLASS_GIBS_DURATION);
+				case 4 : UTIL_CreateShooter(client, "eholster", _, MAT_GLASS, _, "models/gibs/glass_shard04.mdl", vShoot, vGib, GLASS_GIBS_AMOUNT, GLASS_GIBS_DELAY, GLASS_GIBS_SPEED, GLASS_GIBS_VARIENCE, GLASS_GIBS_LIFE, GLASS_GIBS_DURATION);
+				case 5 : UTIL_CreateShooter(client, "eholster", _, MAT_GLASS, _, "models/gibs/glass_shard05.mdl", vShoot, vGib, GLASS_GIBS_AMOUNT, GLASS_GIBS_DELAY, GLASS_GIBS_SPEED, GLASS_GIBS_VARIENCE, GLASS_GIBS_LIFE, GLASS_GIBS_DURATION);
+				case 6 : UTIL_CreateShooter(client, "eholster", _, MAT_GLASS, _, "models/gibs/glass_shard06.mdl", vShoot, vGib, GLASS_GIBS_AMOUNT, GLASS_GIBS_DELAY, GLASS_GIBS_SPEED, GLASS_GIBS_VARIENCE, GLASS_GIBS_LIFE, GLASS_GIBS_DURATION);
 			}
-		
-			UTIL_CreateShooter(client, "eholster", _, MAT_GLASS, _, sBuffer, vShoot, vGib, GLASS_GIBS_AMOUNT, GLASS_GIBS_DELAY, GLASS_GIBS_SPEED, GLASS_GIBS_VARIENCE, GLASS_GIBS_LIFE, GLASS_GIBS_DURATION);
 		}
 	}
 	
