@@ -62,7 +62,6 @@ EngineOS gPlatform;
  **/
 Handle hSDKCallLookupPoseParameter; 
 Handle hSDKCallLookupSequence;
-Handle hSDKCallResetSequence; 
 Handle hSDKCallStudioFrameAdvance; 
 Handle hSDKCallAddLayeredSequence;
 int Animating_StudioHdr;
@@ -282,17 +281,6 @@ public void OnLibraryAdded(const char[] sLibrary)
 			PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain); 
 
 			if ((hSDKCallLookupSequence = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimating::LookupSequence\". Update signature in \"plugin.turret\"");
-		}
-		
-		/*__________________________________________________________________________________________________*/
-		
-		{
-			StartPrepSDKCall(SDKCall_Entity); 
-			PrepSDKCall_SetFromConf(hConfig, SDKConf_Signature, "CBaseAnimating::ResetSequence");
-			
-			PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);  
-			
-			if ((hSDKCallResetSequence = EndPrepSDKCall()) == null) SetFailState("Failed to load SDK call \"CBaseAnimating::ResetSequence\". Update signature in \"plugin.turret\"");
 		}
 
 		/*__________________________________________________________________________________________________*/
@@ -1815,17 +1803,6 @@ methodmap SentryGun /** Regards to Pelipoika **/
 		}
 	}
 
-	public void ResetSequence(const char[] sAnim) 
-	{ 
-		int iSequence = this.LookupSequence(sAnim); 
-		if (iSequence < 0) 
-		{
-			return; 
-		}
-		
-		SDKCall(hSDKCallResetSequence, this.Index, iSequence);
-	}
-	
 	public Address GetStudioHdrClass()
 	{
 		return view_as<Address>(GetEntData(this.Index, Animating_StudioHdr));
