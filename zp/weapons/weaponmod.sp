@@ -128,6 +128,7 @@ void WeaponMODOnInit()
 		PrepSDKCall_SetFromConf(gServerData.CStrike, SDKConf_Virtual, /*CEconItemSchema::*/"GetItemDefintionByName");
 		
 		PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+		
 		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 		
 		if ((hSDKCallGetItemDefinitionByName = EndPrepSDKCall()) == null)
@@ -154,6 +155,7 @@ void WeaponMODOnInit()
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		
 		PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
 		
 		if ((hSDKCallSpawnItem = EndPrepSDKCall()) == null)

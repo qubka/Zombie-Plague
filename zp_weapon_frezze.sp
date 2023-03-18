@@ -46,7 +46,7 @@ public Plugin myinfo =
  * @section Information about the weapon.
  **/
 #define WEAPON_BEAM_COLOR {75, 75, 255, 255}
-#defien WEAPON_ICE_MODEL  "models/player/custom_player/zombie/ice/ice.mdl"
+#define WEAPON_ICE_MODEL  "models/player/custom_player/zombie/ice/ice.mdl"
 /**
  * @endsection
  **/

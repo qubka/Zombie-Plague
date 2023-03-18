@@ -118,6 +118,7 @@ void ToolsOnInit()
 		PrepSDKCall_SetFromConf(gServerData.Config, SDKConf_Signature, "CBaseAnimating::GetSequenceActivity");
 
 		PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+		
 		PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 
 		if ((hSDKCallGetSequenceActivity = EndPrepSDKCall()) == null)

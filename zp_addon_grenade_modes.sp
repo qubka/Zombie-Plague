@@ -185,7 +185,6 @@ public void OnMapStart()
 	
 	PrecacheSound("buttons/blip1.wav", true);
 	PrecacheSound("buttons/blip2.wav", true);
-	PrecacheSound("buttons/bell1.wav", true);
 }
 
 /**

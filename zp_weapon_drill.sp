@@ -47,7 +47,7 @@ public Plugin myinfo =
  **/
 #define WEAPON_ATTACK_TIME  1.0
 #define WEAPON_IDLE_TIME    1.66
-#defien WEAPON_ROCKET_MODEL "models/weapons/cso/drillgun/w_drillgun_projectile.mdl"
+#define WEAPON_ROCKET_MODEL "models/weapons/cso/drillgun/w_drillgun_projectile.mdl"
 /**
  * @endsection
  **/

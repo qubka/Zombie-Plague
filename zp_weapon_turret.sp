@@ -102,7 +102,10 @@ int AnimatingOverlay_Count;
  * @endsection
  **/
 
-#define SENTRY_MODEL_LEVEL_1         "models/buildables/sentry1.mdl";
+/**
+ * @section Sentry models.
+ **/ 
+#define SENTRY_MODEL_LEVEL_1         "models/buildables/sentry1.mdl"
 #define SENTRY_MODEL_LEVEL_1_UPGRADE "models/buildables/sentry1_heavy.mdl"
 #define SENTRY_MODEL_LEVEL_2         "models/buildables/sentry2.mdl"
 #define SENTRY_MODEL_LEVEL_2_UPGRADE "models/buildables/sentry2_heavy.mdl"
@@ -110,7 +113,6 @@ int AnimatingOverlay_Count;
 #define SENTRY_MODEL_LEVEL_3_UPGRADE "models/buildables/sentry3_heavy.mdl"
 #define SENTRY_ROCKET_MODEL          "models/buildables/sentry3_rockets.mdl"
 #define SENTRY_BLUEPRINT_MODEL       "models/buildables/sentry1_blueprint.mdl"
-
 #define SENTRY_MODEL_LEVEL_1_GIB_1 "models/buildables/gibs/sentry1_gib1.mdl"
 #define SENTRY_MODEL_LEVEL_1_GIB_2 "models/buildables/gibs/sentry1_gib2.mdl"
 #define SENTRY_MODEL_LEVEL_1_GIB_3 "models/buildables/gibs/sentry1_gib3.mdl"
@@ -120,7 +122,10 @@ int AnimatingOverlay_Count;
 #define SENTRY_MODEL_LEVEL_2_GIB_3 "models/buildables/gibs/sentry2_gib3.mdl"
 #define SENTRY_MODEL_LEVEL_2_GIB_4 "models/buildables/gibs/sentry2_gib4.mdl"
 #define SENTRY_MODEL_LEVEL_3_GIB_1 "models/buildables/gibs/sentry3_gib1.mdl"
-
+/**
+ * @endsection
+ **/
+ 
 /**
  * @section Sentry states.
  **/ 
@@ -2655,7 +2660,7 @@ stock void GetEyePosition(int entity, float vOutput[3])
  **/
 int GetCost(float flPercentage)
 {
-	return RoundToCeil(float(ZP_GetExtraItemCost(gItem)) * flPercentage);
+	return RoundToCeil(float(ZP_GetExtraItemPrice(gItem)) * flPercentage);
 }
 
 /**
