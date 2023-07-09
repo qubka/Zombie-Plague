@@ -98,6 +98,7 @@ enum
  **/
 
 // Cvars
+ConVar hCvarLandminePickup;
 ConVar hCvarLandmineDamage;
 ConVar hCvarLandmineRadius;
 ConVar hCvarLandmineExp;
@@ -108,6 +109,7 @@ ConVar hCvarLandmineExp;
  **/
 public void OnPluginStart()
 {
+	hCvarLandminePickup = CreateConVar("zp_weapon_landmine_pickup", "1", "Can pickup?", 0, true, 0.0, true, 1.0);
 	hCvarLandmineDamage = CreateConVar("zp_weapon_landmine_damage", "3000.0", "Mine damage", 0, true, 0.0);
 	hCvarLandmineRadius = CreateConVar("zp_weapon_landmine_radius", "300.0", "Damage radius", 0, true, 0.0);
 	hCvarLandmineExp    = CreateConVar("zp_weapon_landmine_explosion", "explosion_basic", "Particle effect for the explosion (''-default)");
@@ -344,7 +346,13 @@ public Action Weapon_OnCreateEmitter(Handle hTimer, int userID)
 			static char sModel[PLATFORM_LINE_LENGTH];
 			ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
 			
-			int entity = UTIL_CreatePhysics("emitter", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR | PHYS_GENERATEUSE);
+			int iFlags = PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR;
+			if (hCvarLandminePickup.BoolValue)
+			{
+				iFlags |= PHYS_GENERATEUSE;
+			}
+			
+			int entity = UTIL_CreatePhysics("emitter", vPosition, vAngle, sModel, iFlags);
 			
 			if (entity != -1)
 			{

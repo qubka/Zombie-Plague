@@ -2728,6 +2728,8 @@ void ModesUpdateClientArray(int target = -1)
  **/
 void ModesReward(BonusType nZombie, BonusType nHuman, OverlayType nOverlay)
 {
+	bool bPlaying = fnGetPlaying() > 1;
+
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientValid(i, false))
@@ -2737,9 +2739,12 @@ void ModesReward(BonusType nZombie, BonusType nHuman, OverlayType nOverlay)
 				continue;
 			}
 
-			LevelSystemOnSetExp(i, gClientData[i].Exp + ClassGetExp(gClientData[i].Class, gClientData[i].Zombie ? nZombie : nHuman));
-			AccountSetClientCash(i, gClientData[i].Money + ClassGetMoney(gClientData[i].Class, gClientData[i].Zombie ? nZombie : nHuman));
-
+			if (bPlaying)
+			{
+				LevelSystemOnSetExp(i, gClientData[i].Exp + ClassGetExp(gClientData[i].Class, gClientData[i].Zombie ? nZombie : nHuman));
+				AccountSetClientCash(i, gClientData[i].Money + ClassGetMoney(gClientData[i].Class, gClientData[i].Zombie ? nZombie : nHuman));
+			}
+			
 			VOverlayOnClientUpdate(i, nOverlay);
 		}
 	}

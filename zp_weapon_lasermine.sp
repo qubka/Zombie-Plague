@@ -92,9 +92,10 @@ int gSound; ConVar hKnockBack;
 int gBeam;
 
 // Cvars
-ConVar hCvarMineImpulse;
-ConVar hCvarMineRewards;
-ConVar hCvarMineDamage;
+ConVar hCvarLaserminePickup;
+ConVar hCvarLasermineImpulse;
+ConVar hCvarLasermineRewards;
+ConVar hCvarLasermineDamage;
 
 /**
  * @brief Called when the plugin is fully initialized and all known external references are resolved. 
@@ -102,9 +103,10 @@ ConVar hCvarMineDamage;
  **/
 public void OnPluginStart()
 {
-	hCvarMineImpulse = CreateConVar("zp_weapon_lasermine_impulse", "0", "Use the classical beam?", 0, true, 0.0, true, 1.0);
-	hCvarMineRewards = CreateConVar("zp_weapon_lasermine_rewards", "1", "Give rewards for damaging to the owner?", 0, true, 0.0, true, 1.0);
-	hCvarMineDamage  = CreateConVar("zp_weapon_lasermine_damage", "150.0", "Damage amount", 0, true, 0.0);
+	hCvarLaserminePickup  = CreateConVar("zp_weapon_lasermine_pickup", "1", "Can pickup?", 0, true, 0.0, true, 1.0);
+	hCvarLasermineImpulse = CreateConVar("zp_weapon_lasermine_impulse", "0", "Use the classical beam?", 0, true, 0.0, true, 1.0);
+	hCvarLasermineRewards = CreateConVar("zp_weapon_lasermine_rewards", "1", "Give rewards for damaging to the owner?", 0, true, 0.0, true, 1.0);
+	hCvarLasermineDamage  = CreateConVar("zp_weapon_lasermine_damage", "150.0", "Damage amount", 0, true, 0.0);
 	
 	AutoExecConfig(true, "zp_weapon_lasermine", "sourcemod/zombieplague");
 }
@@ -266,7 +268,13 @@ public Action Weapon_OnCreateMine(Handle hTimer, int userID)
 			static char sModel[PLATFORM_LINE_LENGTH];
 			ZP_GetWeaponModelDrop(gWeapon, sModel, sizeof(sModel));
 			
-			int entity = UTIL_CreatePhysics("mine", vPosition, vAngle, sModel, PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR | PHYS_GENERATEUSE);
+			int iFlags = PHYS_FORCESERVERSIDE | PHYS_MOTIONDISABLED | PHYS_NOTAFFECTBYROTOR;
+			if (hCvarLaserminePickup.BoolValue)
+			{
+				iFlags |= PHYS_GENERATEUSE;
+			}
+			
+			int entity = UTIL_CreatePhysics("mine", vPosition, vAngle, sModel, iFlags);
 			
 			if (entity != -1)
 			{
@@ -531,7 +539,7 @@ public Action MineActivateHook(Handle hTimer, int refID)
 
 		bool bZombie = GetEntProp(entity, Prop_Data, "m_iTeamNum") == TEAM_ZOMBIE;
 
-		if (hCvarMineImpulse.BoolValue)
+		if (hCvarLasermineImpulse.BoolValue)
 		{
 			GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vEndPosition);
 			
@@ -621,10 +629,10 @@ public Action MineUpdateHook(Handle hTimer, int refID)
 		GetEntPropVector(entity, Prop_Data, "m_vecViewOffset", vEndPosition);
 
 		int owner = GetEntPropEnt(entity, Prop_Data, "m_hEffectEntity");
-		int attacker = hCvarMineRewards.BoolValue && IsClientValid(owner, false) && IsEntitySameTeam(entity, owner) ? owner : -1;
-		float flDamage = hCvarMineDamage.FloatValue;
+		int attacker = hCvarLasermineRewards.BoolValue && IsClientValid(owner, false) && IsEntitySameTeam(entity, owner) ? owner : -1;
+		float flDamage = hCvarLasermineDamage.FloatValue;
 
-		if (hCvarMineImpulse.BoolValue)
+		if (hCvarLasermineImpulse.BoolValue)
 		{
 			static float vVelocity[3]; static float vVelocity2[3];
 		

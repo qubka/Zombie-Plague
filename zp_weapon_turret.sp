@@ -113,15 +113,15 @@ int AnimatingOverlay_Count;
 #define SENTRY_MODEL_LEVEL_3_UPGRADE "models/buildables/sentry3_heavy.mdl"
 #define SENTRY_ROCKET_MODEL          "models/buildables/sentry3_rockets.mdl"
 #define SENTRY_BLUEPRINT_MODEL       "models/buildables/sentry1_blueprint.mdl"
-#define SENTRY_MODEL_LEVEL_1_GIB_1 "models/buildables/gibs/sentry1_gib1.mdl"
-#define SENTRY_MODEL_LEVEL_1_GIB_2 "models/buildables/gibs/sentry1_gib2.mdl"
-#define SENTRY_MODEL_LEVEL_1_GIB_3 "models/buildables/gibs/sentry1_gib3.mdl"
-#define SENTRY_MODEL_LEVEL_1_GIB_4 "models/buildables/gibs/sentry1_gib4.mdl"
-#define SENTRY_MODEL_LEVEL_2_GIB_1 "models/buildables/gibs/sentry2_gib1.mdl"
-#define SENTRY_MODEL_LEVEL_2_GIB_2 "models/buildables/gibs/sentry2_gib2.mdl"
-#define SENTRY_MODEL_LEVEL_2_GIB_3 "models/buildables/gibs/sentry2_gib3.mdl"
-#define SENTRY_MODEL_LEVEL_2_GIB_4 "models/buildables/gibs/sentry2_gib4.mdl"
-#define SENTRY_MODEL_LEVEL_3_GIB_1 "models/buildables/gibs/sentry3_gib1.mdl"
+#define SENTRY_MODEL_LEVEL_1_GIB_1   "models/buildables/gibs/sentry1_gib1.mdl"
+#define SENTRY_MODEL_LEVEL_1_GIB_2   "models/buildables/gibs/sentry1_gib2.mdl"
+#define SENTRY_MODEL_LEVEL_1_GIB_3   "models/buildables/gibs/sentry1_gib3.mdl"
+#define SENTRY_MODEL_LEVEL_1_GIB_4   "models/buildables/gibs/sentry1_gib4.mdl"
+#define SENTRY_MODEL_LEVEL_2_GIB_1   "models/buildables/gibs/sentry2_gib1.mdl"
+#define SENTRY_MODEL_LEVEL_2_GIB_2   "models/buildables/gibs/sentry2_gib2.mdl"
+#define SENTRY_MODEL_LEVEL_2_GIB_3   "models/buildables/gibs/sentry2_gib3.mdl"
+#define SENTRY_MODEL_LEVEL_2_GIB_4   "models/buildables/gibs/sentry2_gib4.mdl"
+#define SENTRY_MODEL_LEVEL_3_GIB_1   "models/buildables/gibs/sentry3_gib1.mdl"
 /**
  * @endsection
  **/
@@ -194,7 +194,8 @@ enum
 };
 
 // Cvars
-ConVar hCvarSentryRewards;			
+ConVar hCvarSentryRewards;		
+ConVar hCvarSentryPickup;	
 ConVar hCvarSentryAttackNpc;			
 ConVar hCvarSentryAttackVisibililty;
 ConVar hCvarSentryBulletDamage;
@@ -223,6 +224,7 @@ ConVar hCvarSentryDeathEffect;
 public void OnPluginStart()
 {
 	hCvarSentryRewards             = CreateConVar("zp_weapon_sentry_rewards", "1", "Give rewards for damaging to the owner?", 0, true, 0.0, true, 1.0);
+	hCvarSentryPickup              = CreateConVar("zp_weapon_sentry_pickup", "1", "Can pickup?", 0, true, 0.0, true, 1.0);
 	hCvarSentryAttackNpc           = CreateConVar("zp_weapon_sentry_attack_npc", "0", "Attack npc? (chicken, ect)", 0, true, 0.0, true, 1.0);
 	hCvarSentryAttackVisibililty   = CreateConVar("zp_weapon_sentry_attack_visibility", "50.0", "Min alpha to see target", 0, true, 0.0);
 	hCvarSentryBulletDamage        = CreateConVar("zp_weapon_sentry_bullet_damage ", "20.0", "Bullet damage", 0, true, 0.0);
@@ -2220,7 +2222,7 @@ public Action ZP_OnWeaponRunCmd(int client, int &iButtons, int iLastButtons, int
 	{
 		if (iButtons & IN_USE && !(iLastButtons & IN_USE))
 		{
-			if (ZP_IsPlayerHasWeapon(client, gWeapon) == -1)
+			if (hCvarSentryPickup.BoolValue && ZP_IsPlayerHasWeapon(client, gWeapon) == -1)
 			{
 				int entity; /// Initialize index
 				if (_call.PickupTurret(client, entity))
